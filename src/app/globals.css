@@ -2,12 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Oswald:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Oswald:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap");
 
 :root {
-  --font-beast: 'Black Han Sans', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  --font-display: 'Oswald', sans-serif;
+  --font-beast: "Black Han Sans", sans-serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-display: "Oswald", sans-serif;
 
   --color-forest-black: #0a0d08;
   --color-pine-dark: #0d1a0e;
@@ -54,7 +54,9 @@ body {
 
 /* Beast cursor */
 * {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M8 4 L12 16 L4 14 Z' fill='%23c0392b'/%3E%3C/svg%3E"), auto;
+  cursor:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M8 4 L12 16 L4 14 Z' fill='%23c0392b'/%3E%3C/svg%3E"),
+    auto;
 }
 
 .font-beast {
@@ -78,7 +80,7 @@ body {
 
 /* Noise texture overlay */
 .noise-overlay::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
@@ -88,11 +90,87 @@ body {
 
 /* Jagged border bottom */
 .jagged-bottom {
-  clip-path: polygon(0 0, 100% 0, 100% 88%, 97% 95%, 94% 88%, 91% 96%, 88% 88%, 85% 95%, 82% 88%, 79% 96%, 76% 88%, 73% 95%, 70% 88%, 67% 96%, 64% 88%, 61% 95%, 58% 88%, 55% 96%, 52% 88%, 49% 95%, 46% 88%, 43% 96%, 40% 88%, 37% 95%, 34% 88%, 31% 96%, 28% 88%, 25% 95%, 22% 88%, 19% 96%, 16% 88%, 13% 95%, 10% 88%, 7% 96%, 4% 88%, 1% 95%, 0 88%);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 88%,
+    97% 95%,
+    94% 88%,
+    91% 96%,
+    88% 88%,
+    85% 95%,
+    82% 88%,
+    79% 96%,
+    76% 88%,
+    73% 95%,
+    70% 88%,
+    67% 96%,
+    64% 88%,
+    61% 95%,
+    58% 88%,
+    55% 96%,
+    52% 88%,
+    49% 95%,
+    46% 88%,
+    43% 96%,
+    40% 88%,
+    37% 95%,
+    34% 88%,
+    31% 96%,
+    28% 88%,
+    25% 95%,
+    22% 88%,
+    19% 96%,
+    16% 88%,
+    13% 95%,
+    10% 88%,
+    7% 96%,
+    4% 88%,
+    1% 95%,
+    0 88%
+  );
 }
 
 .jagged-top {
-  clip-path: polygon(0 12%, 3% 5%, 6% 12%, 9% 4%, 12% 12%, 15% 5%, 18% 12%, 21% 4%, 24% 12%, 27% 5%, 30% 12%, 33% 4%, 36% 12%, 39% 5%, 42% 12%, 45% 4%, 48% 12%, 51% 5%, 54% 12%, 57% 4%, 60% 12%, 63% 5%, 66% 12%, 69% 4%, 72% 12%, 75% 5%, 78% 12%, 81% 4%, 84% 12%, 87% 5%, 90% 12%, 93% 4%, 96% 12%, 99% 5%, 100% 12%, 100% 100%, 0 100%);
+  clip-path: polygon(
+    0 12%,
+    3% 5%,
+    6% 12%,
+    9% 4%,
+    12% 12%,
+    15% 5%,
+    18% 12%,
+    21% 4%,
+    24% 12%,
+    27% 5%,
+    30% 12%,
+    33% 4%,
+    36% 12%,
+    39% 5%,
+    42% 12%,
+    45% 4%,
+    48% 12%,
+    51% 5%,
+    54% 12%,
+    57% 4%,
+    60% 12%,
+    63% 5%,
+    66% 12%,
+    69% 4%,
+    72% 12%,
+    75% 5%,
+    78% 12%,
+    81% 4%,
+    84% 12%,
+    87% 5%,
+    90% 12%,
+    93% 4%,
+    96% 12%,
+    99% 5%,
+    100% 12%,
+    100% 100%,
+    0 100%
+  );
 }
 
 /* Scratch lines */
@@ -100,7 +178,7 @@ body {
   position: relative;
 }
 .scratch-line::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -4px;
   left: 0;
@@ -128,12 +206,24 @@ body {
   animation: glitch 0.3s steps(2) forwards;
 }
 @keyframes glitch {
-  0% { transform: translate(0); }
-  20% { transform: translate(-2px, 2px); }
-  40% { transform: translate(2px, -2px); }
-  60% { transform: translate(-1px, 1px); }
-  80% { transform: translate(1px, -1px); }
-  100% { transform: translate(0); }
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(2px, -2px);
+  }
+  60% {
+    transform: translate(-1px, 1px);
+  }
+  80% {
+    transform: translate(1px, -1px);
+  }
+  100% {
+    transform: translate(0);
+  }
 }
 
 /* Beast button base */
@@ -149,16 +239,28 @@ body {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   border: none;
-  clip-path: polygon(8px 0, calc(100% - 0px) 0, 100% 8px, 100% 100%, calc(100% - 8px) 100%, 0 100%, 0 8px);
+  clip-path: polygon(
+    8px 0,
+    calc(100% - 0px) 0,
+    100% 8px,
+    100% 100%,
+    calc(100% - 8px) 100%,
+    0 100%,
+    0 8px
+  );
   transition: all 0.2s ease;
   overflow: hidden;
 }
 
 .btn-beast::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 50%
+  );
   transform: translateX(-100%) skewX(-20deg);
   transition: transform 0.4s ease;
 }
@@ -193,20 +295,36 @@ body {
 
 /* Stat card */
 .stat-card {
-  background: linear-gradient(135deg, rgba(26, 46, 27, 0.8), rgba(10, 13, 8, 0.9));
+  background: linear-gradient(
+    135deg,
+    rgba(26, 46, 27, 0.8),
+    rgba(10, 13, 8, 0.9)
+  );
   border: 1px solid rgba(74, 124, 89, 0.3);
-  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  clip-path: polygon(
+    12px 0,
+    100% 0,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    0 100%,
+    0 12px
+  );
   position: relative;
 }
 
 .stat-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--color-scarlet), var(--color-ember), transparent);
+  background: linear-gradient(
+    90deg,
+    var(--color-scarlet),
+    var(--color-ember),
+    transparent
+  );
 }
 
 /* Section reveal */
@@ -238,9 +356,18 @@ body {
 
 /* Mist layers */
 @keyframes mistDrift {
-  0% { transform: translateX(-20%) scaleX(1); opacity: 0.15; }
-  50% { transform: translateX(5%) scaleX(1.1); opacity: 0.25; }
-  100% { transform: translateX(-20%) scaleX(1); opacity: 0.15; }
+  0% {
+    transform: translateX(-20%) scaleX(1);
+    opacity: 0.15;
+  }
+  50% {
+    transform: translateX(5%) scaleX(1.1);
+    opacity: 0.25;
+  }
+  100% {
+    transform: translateX(-20%) scaleX(1);
+    opacity: 0.15;
+  }
 }
 
 .mist-layer {
@@ -252,7 +379,7 @@ body {
   position: relative;
 }
 .claw-mark::after {
-  content: '///';
+  content: "///";
   position: absolute;
   color: var(--color-scarlet);
   opacity: 0.3;
@@ -265,7 +392,9 @@ body {
 .warning-sign {
   background: #f5f0e0;
   border: 4px solid #2a2a2a;
-  box-shadow: inset 0 0 0 2px #2a2a2a, 6px 6px 0 rgba(0,0,0,0.5);
+  box-shadow:
+    inset 0 0 0 2px #2a2a2a,
+    6px 6px 0 rgba(0, 0, 0, 0.5);
   transform-origin: top center;
   animation: swing 3s ease-in-out infinite;
 }
@@ -281,14 +410,24 @@ body {
 
 /* Number counter animation */
 @keyframes countUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Horizontal scroll marquee */
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .marquee-track {
@@ -299,12 +438,22 @@ body {
 
 /* Shine effect */
 @keyframes shine {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
 
 .shine-text {
-  background: linear-gradient(90deg, var(--color-bone) 0%, var(--color-gold, #c9a84c) 45%, var(--color-silver) 55%, var(--color-bone) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-bone) 0%,
+    var(--color-gold, #c9a84c) 45%,
+    var(--color-silver) 55%,
+    var(--color-bone) 100%
+  );
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -316,12 +465,41 @@ body {
   position: relative;
 }
 .torn-top::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -20px;
   left: 0;
   right: 0;
   height: 40px;
   background: inherit;
-  clip-path: polygon(0 100%, 2% 40%, 5% 80%, 8% 30%, 12% 70%, 16% 20%, 20% 60%, 24% 10%, 28% 55%, 32% 15%, 36% 65%, 40% 25%, 44% 70%, 48% 15%, 52% 60%, 56% 20%, 60% 65%, 64% 10%, 68% 50%, 72% 5%, 76% 45%, 80% 0%, 84% 40%, 88% 10%, 92% 50%, 96% 15%, 100% 55%, 100% 100%);
+  clip-path: polygon(
+    0 100%,
+    2% 40%,
+    5% 80%,
+    8% 30%,
+    12% 70%,
+    16% 20%,
+    20% 60%,
+    24% 10%,
+    28% 55%,
+    32% 15%,
+    36% 65%,
+    40% 25%,
+    44% 70%,
+    48% 15%,
+    52% 60%,
+    56% 20%,
+    60% 65%,
+    64% 10%,
+    68% 50%,
+    72% 5%,
+    76% 45%,
+    80% 0%,
+    84% 40%,
+    88% 10%,
+    92% 50%,
+    96% 15%,
+    100% 55%,
+    100% 100%
+  );
 }

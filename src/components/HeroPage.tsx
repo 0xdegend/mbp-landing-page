@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import FloatingParticleLayer from "./FloatingParticleLayer";
+import HeroBackdrop from "./HeroBackdrop";
+import HeroLeftPanel from "./HeroLeftPanel";
+import HeroRightPanel from "./HeroRightPanel";
 
 export default function HeroPage() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -19,10 +21,22 @@ export default function HeroPage() {
   const spotlightRef = useRef<HTMLDivElement>(null);
   const clawRef = useRef<HTMLDivElement>(null);
   const auroraRef = useRef<HTMLDivElement>(null);
-  const glowRingRef = useRef<HTMLDivElement>(null);
+  // glowRingRef removed — energy ring replaced by mountain layers
   const layer1Ref = useRef<HTMLDivElement>(null);
   const layer2Ref = useRef<HTMLDivElement>(null);
   const layer3Ref = useRef<HTMLDivElement>(null);
+  const primaryBtnRef = useRef<HTMLButtonElement>(null);
+  const primaryCanvasRef = useRef<HTMLCanvasElement>(null);
+  const outlineBtnRef = useRef<HTMLButtonElement>(null);
+  const rightPanelRef = useRef<HTMLDivElement>(null);
+  const beastEmberCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  const mistARef = useRef<HTMLDivElement>(null);
+  const mistBRef = useRef<HTMLDivElement>(null);
+  const mtnLayer1Ref = useRef<HTMLDivElement>(null);
+  const mtnLayer2Ref = useRef<HTMLDivElement>(null);
+  const mtnLayer3Ref = useRef<HTMLDivElement>(null);
+  const beastBadgeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -144,30 +158,43 @@ export default function HeroPage() {
         );
       }
 
-      /* ── Phase 7: Beast image — dramatic 3-D entrance ────── */
+      /* ── Phase 7: Mountains drift up ──────────────────────── */
+      tl.fromTo(
+        [mtnLayer1Ref.current, mtnLayer2Ref.current, mtnLayer3Ref.current],
+        { opacity: 0, y: 60 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.8,
+          stagger: 0.15,
+          ease: "power2.out",
+        },
+        1.2,
+      );
+
+      /* ── Phase 8: Mist fades in ──────────────────────────── */
+      tl.fromTo(
+        [mistARef.current, mistBRef.current],
+        { opacity: 0 },
+        { opacity: 1, duration: 1.2, ease: "power1.inOut" },
+        1.5,
+      );
+
+      /* ── Phase 9: Beast emerges ──────────────────────────── */
       tl.fromTo(
         beastCardRef.current,
-        { opacity: 0, scale: 0.3, rotateY: -30, rotateX: 15 },
+        { opacity: 0, scale: 0.9, y: 40 },
         {
           opacity: 1,
           scale: 1,
-          rotateY: 0,
-          rotateX: 0,
+          y: 0,
           duration: 1.2,
           ease: "power3.out",
         },
         1.8,
       );
 
-      /* ── Phase 8: Glow ring ──────────────────────────────── */
-      tl.fromTo(
-        glowRingRef.current,
-        { opacity: 0, scale: 0, rotation: -180 },
-        { opacity: 1, scale: 1, rotation: 0, duration: 1, ease: "power2.out" },
-        2.5,
-      );
-
-      /* ── Phase 9: Warning sign swings in ─────────────────── */
+      /* ── Phase 11: Warning sign swings in ────────────────── */
       tl.fromTo(
         warningRef.current,
         { opacity: 0, rotation: -45, x: -200, scale: 0.5 },
@@ -182,7 +209,21 @@ export default function HeroPage() {
         2.8,
       );
 
-      /* ── Phase 10: Badge + copy + CTAs ───────────────────── */
+      /* ── Phase 12: Beast WARNING badge swings in ─────────── */
+      tl.fromTo(
+        beastBadgeRef.current,
+        { opacity: 0, x: 30, rotation: -15 },
+        {
+          opacity: 1,
+          x: 0,
+          rotation: 0,
+          duration: 0.8,
+          ease: "elastic.out(1, 0.6)",
+        },
+        3.0,
+      );
+
+      /* ── Phase 13: Badge + copy + CTAs ───────────────────── */
       tl.fromTo(
         badgeRef.current,
         { opacity: 0, y: -20, scale: 0.8 },
@@ -215,21 +256,424 @@ export default function HeroPage() {
       );
 
       /* ── Continuous loops ─────────────────────────────────── */
+      // Beast breathing — subtle scale oscillation
       gsap.to(beastRef.current, {
-        scale: 1.02,
-        duration: 3,
+        scale: 1.015,
+        duration: 4,
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
-        delay: 4,
-      });
-      gsap.to(glowRingRef.current, {
-        rotation: "+=360",
-        duration: 20,
-        repeat: -1,
-        ease: "none",
+        delay: 3.5,
       });
     }, sectionRef);
+
+    /* ═══ BEAST BUTTON SYSTEMS ═══════════════════════════ */
+    const cleanups: (() => void)[] = [];
+
+    /* ── 1. Canvas ember particles (primary only) ──────── */
+    const setupEmbers = () => {
+      const canvas = primaryCanvasRef.current;
+      const btn = primaryBtnRef.current;
+      if (!canvas || !btn) return;
+      const ctx2d = canvas.getContext("2d");
+      if (!ctx2d) return;
+
+      interface Ember {
+        x: number;
+        y: number;
+        vx: number;
+        vy: number;
+        size: number;
+        life: number;
+        maxLife: number;
+        hue: number;
+      }
+
+      const embers: Ember[] = [];
+      let isHovered = false;
+      let animId = 0;
+
+      const resize = () => {
+        const rect = btn.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+      };
+      resize();
+
+      const spawnEmber = () => {
+        const w = canvas.width;
+        const h = canvas.height;
+        embers.push({
+          x: 8 + Math.random() * (w - 16),
+          y: h - 2,
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: -(1.2 + Math.random() * 1.5),
+          size: 1.5 + Math.random() * 2.5,
+          life: 1,
+          maxLife: 40 + Math.random() * 30,
+          hue: Math.random() > 0.5 ? 0 : 20, // scarlet or ember
+        });
+      };
+
+      let spawnTimer = 0;
+      const loop = () => {
+        ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (isHovered) {
+          spawnTimer++;
+          if (spawnTimer % 4 === 0 && embers.length < 8) spawnEmber();
+        }
+
+        for (let i = embers.length - 1; i >= 0; i--) {
+          const e = embers[i];
+          e.x += e.vx + (Math.random() - 0.5) * 0.3;
+          e.y += e.vy;
+          e.vy *= 0.99;
+          e.life -= 1 / e.maxLife;
+
+          if (e.life <= 0) {
+            embers.splice(i, 1);
+            continue;
+          }
+
+          const alpha = e.life * 0.9;
+          const r = e.hue === 0 ? 192 : 232;
+          const g = e.hue === 0 ? 57 : 77;
+          const b = e.hue === 0 ? 43 : 14;
+
+          // Glow
+          ctx2d.beginPath();
+          ctx2d.arc(e.x, e.y, e.size * 3, 0, Math.PI * 2);
+          ctx2d.fillStyle = `rgba(${r},${g},${b},${alpha * 0.15})`;
+          ctx2d.fill();
+
+          // Core
+          ctx2d.beginPath();
+          ctx2d.arc(e.x, e.y, e.size, 0, Math.PI * 2);
+          ctx2d.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+          ctx2d.fill();
+
+          // Hot center
+          ctx2d.beginPath();
+          ctx2d.arc(e.x, e.y, e.size * 0.4, 0, Math.PI * 2);
+          ctx2d.fillStyle = `rgba(255,200,100,${alpha * 0.8})`;
+          ctx2d.fill();
+        }
+
+        animId = requestAnimationFrame(loop);
+      };
+
+      const enter = () => {
+        isHovered = true;
+        spawnTimer = 0;
+      };
+      const leave = () => {
+        isHovered = false;
+      };
+
+      btn.addEventListener("mouseenter", enter);
+      btn.addEventListener("mouseleave", leave);
+      animId = requestAnimationFrame(loop);
+
+      cleanups.push(() => {
+        cancelAnimationFrame(animId);
+        btn.removeEventListener("mouseenter", enter);
+        btn.removeEventListener("mouseleave", leave);
+      });
+    };
+    setupEmbers();
+
+    /* ── 2. Text scramble (primary button) ─────────────── */
+    const setupScramble = (btn: HTMLButtonElement | null) => {
+      if (!btn) return;
+      const textEl = btn.querySelector(".btn-text") as HTMLElement;
+      if (!textEl) return;
+      const original = textEl.textContent || "";
+      const scrambleChars = "!@#$%&XBEAST0123";
+      let scrambleId: ReturnType<typeof setInterval>;
+
+      const enter = () => {
+        let iteration = 0;
+        const len = original.length;
+        scrambleId = setInterval(() => {
+          textEl.textContent = original
+            .split("")
+            .map((ch, i) => {
+              if (ch === " ") return " ";
+              if (i < iteration) return original[i];
+              return scrambleChars[
+                Math.floor(Math.random() * scrambleChars.length)
+              ];
+            })
+            .join("");
+          iteration += 0.4; // stagger left→right
+          if (iteration >= len) {
+            clearInterval(scrambleId);
+            textEl.textContent = original;
+          }
+        }, 30); // ~200ms total for 7 chars
+      };
+      const leave = () => {
+        clearInterval(scrambleId);
+        textEl.textContent = original;
+      };
+      btn.addEventListener("mouseenter", enter);
+      btn.addEventListener("mouseleave", leave);
+      cleanups.push(() => {
+        btn.removeEventListener("mouseenter", enter);
+        btn.removeEventListener("mouseleave", leave);
+        clearInterval(scrambleId);
+      });
+    };
+    setupScramble(primaryBtnRef.current);
+
+    /* ── 3. Magnetic hover + click spring (both) ───────── */
+    const setupMagnetic = (btn: HTMLButtonElement | null) => {
+      if (!btn) return;
+      const move = (e: MouseEvent) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        gsap.to(btn, {
+          x: x * 0.25,
+          y: y * 0.15,
+          rotateX: -y * 0.06,
+          rotateY: x * 0.06,
+          duration: 0.4,
+          ease: "power2.out",
+        });
+      };
+      const leave = () => {
+        gsap.to(btn, {
+          x: 0,
+          y: 0,
+          rotateX: 0,
+          rotateY: 0,
+          duration: 0.7,
+          ease: "elastic.out(1, 0.4)",
+        });
+      };
+      const click = () => {
+        // GSAP particle burst
+        const rect = btn.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        for (let i = 0; i < 10; i++) {
+          const dot = document.createElement("div");
+          dot.className = "beast-particle";
+          dot.style.left = cx + "px";
+          dot.style.top = cy + "px";
+          document.body.appendChild(dot);
+          const angle = (i / 10) * Math.PI * 2;
+          const dist = gsap.utils.random(50, 120);
+          gsap.fromTo(
+            dot,
+            { scale: gsap.utils.random(0.6, 1.4), opacity: 1 },
+            {
+              x: Math.cos(angle) * dist,
+              y: Math.sin(angle) * dist,
+              scale: 0,
+              opacity: 0,
+              duration: gsap.utils.random(0.4, 0.8),
+              ease: "power3.out",
+              onComplete: () => dot.remove(),
+            },
+          );
+        }
+      };
+      btn.addEventListener("mousemove", move);
+      btn.addEventListener("mouseleave", leave);
+      btn.addEventListener("click", click);
+      cleanups.push(() => {
+        btn.removeEventListener("mousemove", move);
+        btn.removeEventListener("mouseleave", leave);
+        btn.removeEventListener("click", click);
+      });
+    };
+    setupMagnetic(primaryBtnRef.current);
+    setupMagnetic(outlineBtnRef.current);
+
+    /* ── 4. SVG border draw on outline button hover ────── */
+    const setupBorderDraw = () => {
+      const btn = outlineBtnRef.current;
+      if (!btn) return;
+      const svgRect = btn.querySelector(
+        ".btn-border-rect",
+      ) as SVGRectElement | null;
+      if (!svgRect) return;
+
+      const measure = () => {
+        const box = btn.getBoundingClientRect();
+        const w = box.width - 2;
+        const h = box.height - 2;
+        svgRect.setAttribute("width", String(w));
+        svgRect.setAttribute("height", String(h));
+        const perimeter = 2 * (w + h);
+        svgRect.style.strokeDasharray = `${perimeter}`;
+        svgRect.style.strokeDashoffset = `${perimeter}`;
+        return perimeter;
+      };
+      let perimeter = measure();
+
+      const enter = () => {
+        perimeter = measure();
+        gsap.to(svgRect, {
+          attr: { "stroke-dashoffset": 0 },
+          duration: 0.3,
+          ease: "power2.out",
+        });
+      };
+      const leave = () => {
+        gsap.to(svgRect, {
+          attr: { "stroke-dashoffset": perimeter },
+          duration: 0.25,
+          ease: "power2.in",
+        });
+      };
+      btn.addEventListener("mouseenter", enter);
+      btn.addEventListener("mouseleave", leave);
+      cleanups.push(() => {
+        btn.removeEventListener("mouseenter", enter);
+        btn.removeEventListener("mouseleave", leave);
+      });
+    };
+    setupBorderDraw();
+
+    /* ── 5. Beast scene ember particles (canvas) ───────── */
+    const setupBeastEmbers = () => {
+      const canvas = beastEmberCanvasRef.current;
+      const panel = rightPanelRef.current;
+      if (!canvas || !panel) return;
+      const ctx2d = canvas.getContext("2d");
+      if (!ctx2d) return;
+
+      interface BeastEmber {
+        x: number;
+        y: number;
+        vx: number;
+        vy: number;
+        size: number;
+        life: number;
+        maxLife: number;
+      }
+
+      const embers: BeastEmber[] = [];
+      let isHovered = false;
+      let animId = 0;
+      let baseRate = 6; // idle spawn interval (frames)
+
+      const resize = () => {
+        const r = panel.getBoundingClientRect();
+        canvas.width = r.width;
+        canvas.height = r.height;
+      };
+      resize();
+      window.addEventListener("resize", resize);
+
+      const spawn = () => {
+        const w = canvas.width;
+        const h = canvas.height;
+        embers.push({
+          x: w * 0.2 + Math.random() * w * 0.6,
+          y: h - 10,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: -(0.3 + Math.random() * 0.6),
+          size: 1.5 + Math.random() * 2,
+          life: 1,
+          maxLife: 80 + Math.random() * 60,
+        });
+      };
+
+      let tick = 0;
+      const loop = () => {
+        ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+        tick++;
+        const rate = isHovered ? 3 : baseRate;
+        if (tick % rate === 0 && embers.length < (isHovered ? 20 : 15)) spawn();
+
+        for (let i = embers.length - 1; i >= 0; i--) {
+          const e = embers[i];
+          e.x += e.vx + Math.sin(tick * 0.02 + i) * 0.15;
+          e.y += e.vy;
+          e.life -= 1 / e.maxLife;
+          if (e.life <= 0) {
+            embers.splice(i, 1);
+            continue;
+          }
+
+          const a = e.life * 0.3;
+          // Outer glow
+          ctx2d.beginPath();
+          ctx2d.arc(e.x, e.y, e.size * 4, 0, Math.PI * 2);
+          ctx2d.fillStyle = `rgba(232,77,14,${a * 0.2})`;
+          ctx2d.fill();
+          // Core
+          ctx2d.beginPath();
+          ctx2d.arc(e.x, e.y, e.size, 0, Math.PI * 2);
+          ctx2d.fillStyle = `rgba(232,77,14,${a})`;
+          ctx2d.fill();
+          // Hot dot
+          ctx2d.beginPath();
+          ctx2d.arc(e.x, e.y, e.size * 0.3, 0, Math.PI * 2);
+          ctx2d.fillStyle = `rgba(255,220,100,${a * 0.7})`;
+          ctx2d.fill();
+        }
+        animId = requestAnimationFrame(loop);
+      };
+
+      // Delay start per the timeline (2s mark)
+      const startTimer = setTimeout(() => {
+        animId = requestAnimationFrame(loop);
+      }, 2400);
+
+      const enter = () => {
+        isHovered = true;
+      };
+      const leave = () => {
+        isHovered = false;
+      };
+      panel.addEventListener("mouseenter", enter);
+      panel.addEventListener("mouseleave", leave);
+
+      cleanups.push(() => {
+        clearTimeout(startTimer);
+        cancelAnimationFrame(animId);
+        window.removeEventListener("resize", resize);
+        panel.removeEventListener("mouseenter", enter);
+        panel.removeEventListener("mouseleave", leave);
+      });
+    };
+    setupBeastEmbers();
+
+    /* ── 6. Right panel hover → eye intensity + beast glow */
+    const setupPanelHover = () => {
+      const panel = rightPanelRef.current;
+      const beast = beastRef.current;
+
+      if (!panel || !beast) return;
+
+      const enter = () => {
+        gsap.to(beast.querySelector("video"), {
+          filter: "brightness(1.08)",
+          duration: 0.3,
+          ease: "power2.out",
+        });
+      };
+      const leave = () => {
+        gsap.to(beast.querySelector("video"), {
+          filter: "brightness(1)",
+          duration: 0.4,
+          ease: "power2.inOut",
+        });
+      };
+      panel.addEventListener("mouseenter", enter);
+      panel.addEventListener("mouseleave", leave);
+      cleanups.push(() => {
+        panel.removeEventListener("mouseenter", enter);
+        panel.removeEventListener("mouseleave", leave);
+      });
+    };
+    setupPanelHover();
 
     /* ── 3-D mouse parallax ──────────────────────────────── */
     const handleMouseMove = (e: MouseEvent) => {
@@ -278,6 +722,7 @@ export default function HeroPage() {
     return () => {
       ctx.revert();
       window.removeEventListener("mousemove", handleMouseMove);
+      cleanups.forEach((fn) => fn());
     };
   }, []);
 
@@ -292,548 +737,47 @@ export default function HeroPage() {
       ref={sectionRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#050a04]"
     >
-      {/* ═══ Cursor spotlight ═══ */}
-      <div
-        ref={spotlightRef}
-        className="fixed pointer-events-none z-50"
-        style={{
-          width: 600,
-          height: 600,
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(192,57,43,0.06) 0%, rgba(232,77,14,0.03) 30%, transparent 70%)",
-          transform: "translate(-50%,-50%)",
-          filter: "blur(40px)",
-          mixBlendMode: "screen",
-        }}
+      <HeroBackdrop
+        spotlightRef={spotlightRef}
+        clawRef={clawRef}
+        auroraRef={auroraRef}
+        sceneRef={sceneRef}
+        layer1Ref={layer1Ref}
+        layer2Ref={layer2Ref}
+        layer3Ref={layer3Ref}
+        warningRef={warningRef}
       />
 
-      {/* ═══ Claw-slash overlay ═══ */}
-      <div ref={clawRef} className="absolute inset-0 z-40 pointer-events-none">
-        {[0, 1, 2].map((i) => (
-          <div
-            key={i}
-            className="claw-slash absolute"
-            style={{
-              top: `${25 + i * 18}%`,
-              left: "10%",
-              width: "80%",
-              height: 4,
-              background:
-                "linear-gradient(90deg, transparent, rgba(192,57,43,0.8) 20%, rgba(232,77,14,0.6) 80%, transparent)",
-              transform: `rotate(${-3 + i * 2}deg) scaleX(0)`,
-              borderRadius: 2,
-              boxShadow:
-                "0 0 20px rgba(192,57,43,0.5), 0 0 40px rgba(232,77,14,0.3)",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* ═══ Aurora / Northern-lights ═══ */}
-      <div
-        ref={auroraRef}
-        className="absolute top-0 left-0 right-0 h-[60%] pointer-events-none aurora-shimmer"
-        style={{
-          background:
-            "linear-gradient(135deg, transparent 0%, rgba(46,139,87,0.08) 20%, rgba(192,57,43,0.05) 40%, rgba(0,100,148,0.06) 60%, rgba(46,139,87,0.04) 80%, transparent 100%)",
-          backgroundSize: "200% 100%",
-          filter: "blur(60px)",
-          zIndex: 1,
-          opacity: 0,
-        }}
-      />
-
-      {/* ═══ 3-D Scene Container ═══ */}
-      <div
-        ref={sceneRef}
-        className="absolute inset-0"
-        style={{
-          perspective: 1000,
-          transformStyle: "preserve-3d",
-          perspectiveOrigin: "50% 50%",
-        }}
-      >
-        {/* Stars */}
-        <div
-          className="absolute inset-0"
-          style={{ zIndex: 1, transformStyle: "preserve-3d" }}
-        >
-          {Array.from({ length: 80 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full star-twinkle"
-              style={{
-                width: Math.random() * 2.5 + 0.5,
-                height: Math.random() * 2.5 + 0.5,
-                top: `${Math.random() * 45}%`,
-                left: `${Math.random() * 100}%`,
-                background: i % 5 === 0 ? "#7ec8e3" : "white",
-                opacity: Math.random() * 0.7 + 0.1,
-                animationDuration: `${2 + Math.random() * 4}s`,
-                animationDelay: `${Math.random() * 5}s`,
-                transform: `translateZ(${-100 - Math.random() * 200}px)`,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Far mountains */}
-        <div
-          ref={layer1Ref}
-          className="absolute bottom-0 left-0 right-0"
-          style={{
-            zIndex: 2,
-            transform: "translateZ(-80px) scale(1.08)",
-            opacity: 0,
-          }}
-        >
-          <svg
-            viewBox="0 0 1440 450"
-            preserveAspectRatio="none"
-            className="w-full h-auto"
-          >
-            <defs>
-              <linearGradient id="mtG1" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#0f3d15" stopOpacity="0.9" />
-                <stop offset="100%" stopColor="#071a09" />
-              </linearGradient>
-              <linearGradient id="mtG2" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#0a2a0e" stopOpacity="0.7" />
-                <stop offset="100%" stopColor="#050e06" stopOpacity="0.9" />
-              </linearGradient>
-              <filter id="mtGlow">
-                <feGaussianBlur stdDeviation="3" />
-              </filter>
-            </defs>
-            <path
-              d="M0,350 L60,200 L140,260 L260,110 L380,180 L500,70 L600,150 L720,40 L840,120 L960,80 L1080,160 L1180,50 L1300,130 L1380,90 L1440,170 L1440,450 L0,450Z"
-              fill="url(#mtG2)"
-            />
-            <path
-              d="M0,320 L100,190 L180,240 L300,120 L420,170 L540,90 L640,155 L740,70 L840,140 L960,100 L1080,160 L1180,80 L1300,150 L1380,110 L1440,180 L1440,450 L0,450Z"
-              fill="url(#mtG1)"
-            />
-            <path
-              d="M260,110 L295,150 L225,150Z"
-              fill="white"
-              opacity="0.6"
-              filter="url(#mtGlow)"
-            />
-            <path
-              d="M720,40 L755,80 L685,80Z"
-              fill="white"
-              opacity="0.55"
-              filter="url(#mtGlow)"
-            />
-            <path
-              d="M1180,50 L1210,85 L1150,85Z"
-              fill="white"
-              opacity="0.45"
-              filter="url(#mtGlow)"
-            />
-            <path
-              d="M500,70 L530,105 L470,105Z"
-              fill="white"
-              opacity="0.4"
-              filter="url(#mtGlow)"
-            />
-          </svg>
-        </div>
-
-        {/* Mid pine forest */}
-        <div
-          ref={layer2Ref}
-          className="absolute bottom-0 left-0 right-0"
-          style={{
-            zIndex: 3,
-            transform: "translateZ(-40px) scale(1.04)",
-            opacity: 0,
-          }}
-        >
-          <svg
-            viewBox="0 0 1440 320"
-            preserveAspectRatio="none"
-            className="w-full h-auto"
-          >
-            {[0, 50, 100, 150, 200, 250, 300, 350, 400, 450].map((x, i) => (
-              <g
-                key={`l${i}`}
-                transform={`translate(${x}, ${255 - (i % 4) * 12})`}
-              >
-                <polygon
-                  points="0,-70 -22,0 22,0"
-                  fill="#0f2210"
-                  opacity="0.95"
-                />
-                <polygon
-                  points="0,-100 -16,-35 16,-35"
-                  fill="#162e18"
-                  opacity="0.85"
-                />
-                <polygon
-                  points="0,-120 -11,-60 11,-60"
-                  fill="#1a3a1c"
-                  opacity="0.75"
-                />
-              </g>
-            ))}
-            {[1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350, 1400, 1440].map(
-              (x, i) => (
-                <g
-                  key={`r${i}`}
-                  transform={`translate(${x}, ${255 - (i % 4) * 10})`}
-                >
-                  <polygon
-                    points="0,-65 -20,0 20,0"
-                    fill="#0f2210"
-                    opacity="0.95"
-                  />
-                  <polygon
-                    points="0,-90 -14,-32 14,-32"
-                    fill="#162e18"
-                    opacity="0.85"
-                  />
-                  <polygon
-                    points="0,-108 -9,-52 9,-52"
-                    fill="#1a3a1c"
-                    opacity="0.75"
-                  />
-                </g>
-              ),
-            )}
-            <rect
-              x="0"
-              y="255"
-              width="1440"
-              height="65"
-              fill="#0a1a0b"
-              opacity="0.9"
-            />
-          </svg>
-        </div>
-
-        {/* Foreground mist */}
-        <div
-          ref={layer3Ref}
-          className="absolute bottom-0 left-0 right-0"
-          style={{ zIndex: 4, opacity: 0 }}
-        >
-          <div className="relative w-full h-48">
-            <div
-              className="absolute inset-0 mist-layer"
-              style={
-                {
-                  background:
-                    "linear-gradient(to top, rgba(10,13,8,0.95), rgba(13,26,14,0.4), transparent)",
-                  filter: "blur(15px)",
-                  "--drift-time": "12s",
-                } as React.CSSProperties
-              }
-            />
-            <div
-              className="absolute inset-0 mist-layer"
-              style={
-                {
-                  background:
-                    "linear-gradient(to top, rgba(10,13,8,0.6), rgba(45,90,46,0.1), transparent)",
-                  filter: "blur(30px)",
-                  animationDelay: "-5s",
-                  "--drift-time": "18s",
-                } as React.CSSProperties
-              }
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ═══ Particles ═══ */}
-      <FloatingParticleLayer count={15} type="ember" className="z-[5]" />
-      <FloatingParticleLayer count={10} type="dust" className="z-[5]" />
-
-      {/* ═══ Fireflies ═══ */}
-      <div className="absolute inset-0 z-[5] pointer-events-none">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full firefly-glow"
-            style={{
-              width: 4,
-              height: 4,
-              background: i % 3 === 0 ? "#ffaa00" : "#7ec8e3",
-              boxShadow: `0 0 ${8 + i * 2}px ${
-                i % 3 === 0 ? "rgba(255,170,0,0.6)" : "rgba(126,200,227,0.4)"
-              }`,
-              top: `${20 + Math.random() * 60}%`,
-              left: `${Math.random() * 100}%`,
-              animationDuration: `${6 + Math.random() * 8}s`,
-              animationDelay: `${Math.random() * 6}s`,
-              // Use one of the three firefly keyframes based on index
-              animationName: `firefly${i % 3}`,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* ═══ Warning sign ═══ */}
-      <div
-        ref={warningRef}
-        className="absolute top-28 left-4 sm:left-8 lg:left-16 z-20"
-        style={{ transformOrigin: "top center", opacity: 0 }}
-      >
-        <div className="warning-sign rounded-sm" style={{ width: 120 }}>
-          <div className="warning-header px-2 py-1 text-center text-xs">
-            ⚠ WARNING
-          </div>
-          <div className="p-2 text-center">
-            <p className="text-[9px] font-bold text-gray-900 leading-tight font-display tracking-wide uppercase">
-              MAN-BEAR-PIG
-              <br />
-              SEEN
-              <br />
-              IN
-              <br />
-              THIS
-              <br />
-              AREA
-            </p>
-          </div>
-          <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-2 bg-[#5a3a20] h-16" />
-        </div>
-      </div>
-
-      {/* ═══ Hero content ═══ */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-10 w-full">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-4 items-center min-h-[80vh]">
-          {/* ── Left — Text ── */}
-          <div className="flex flex-col justify-center order-2 lg:order-1">
-            <h1
-              ref={headlineRef}
-              className="font-beast text-5xl sm:text-6xl lg:text-7xl xl:text-8xl leading-none mb-4"
-              style={{
-                letterSpacing: "-0.02em",
-                perspective: 500,
-                transformStyle: "preserve-3d",
-              }}
-            >
-              <span
-                className="block text-bone word-the"
-                style={{ opacity: 0, transformStyle: "preserve-3d" }}
-              >
-                THE
-              </span>
-              <span
-                ref={beastWordRef}
-                className="block word-beast"
-                style={{
-                  WebkitTextStroke: "3px #c0392b",
-                  color: "transparent",
-                  textShadow:
-                    "6px 6px 0 rgba(192,57,43,0.3), 0 0 40px rgba(192,57,43,0.2)",
-                  filter: "drop-shadow(0 0 20px rgba(192,57,43,0.3))",
-                  transformStyle: "preserve-3d",
-                }}
-              >
-                {/* Individual chars for explosion animation */}
-                {"BEAST".split("").map((ch, i) => (
-                  <span
-                    key={i}
-                    className="inline-block hero-char"
-                    style={{ opacity: 0 }}
-                  >
-                    {ch}
-                  </span>
-                ))}
-              </span>
-              <span
-                className="block text-bone word-ofsui"
-                style={{ opacity: 0, transformStyle: "preserve-3d" }}
-              >
-                OF SUI
-              </span>
-            </h1>
+          <HeroLeftPanel
+            badgeRef={badgeRef}
+            headlineRef={headlineRef}
+            beastWordRef={beastWordRef}
+            subheadRef={subheadRef}
+            taglineRef={taglineRef}
+            microcopyRef={microcopyRef}
+            ctaRef={ctaRef}
+            primaryBtnRef={primaryBtnRef}
+            primaryCanvasRef={primaryCanvasRef}
+            outlineBtnRef={outlineBtnRef}
+            scrollToSection={scrollToSection}
+          />
 
-            {/* Subheadline */}
-            <p
-              ref={subheadRef}
-              className="font-display text-lg sm:text-xl text-sky-ice/90 mb-4 uppercase tracking-widest font-semibold"
-              style={{ opacity: 0 }}
-            >
-              Half Man. Half Bear. Half Pig.
-              <span className="text-scarlet font-bold"> 100% Chaos.</span>
-            </p>
-
-            {/* Tagline */}
-            <p
-              ref={taglineRef}
-              className="font-body text-base text-ash mb-2 italic max-w-sm"
-              style={{ opacity: 0 }}
-            >
-              &ldquo;A savage meme forged in the wild.&rdquo;
-            </p>
-
-            {/* Microcopy */}
-            <p
-              ref={microcopyRef}
-              className="font-display text-xs tracking-[0.25em] uppercase text-moss mb-8"
-              style={{ opacity: 0 }}
-            >
-              Not a man. Not a bear. Not a pig.{" "}
-              <span className="text-bone font-bold">A force.</span>
-            </p>
-
-            {/* CTA buttons */}
-            <div
-              ref={ctaRef}
-              className="flex flex-wrap gap-4"
-              style={{ opacity: 0 }}
-            >
-              <button
-                className="btn-beast btn-beast-primary"
-                onClick={() => scrollToSection("#summon")}
-              >
-                🐾 Buy $MBP
-              </button>
-              <button
-                className="btn-beast btn-beast-outline"
-                onClick={() => scrollToSection("#lore")}
-              >
-                $MBP Origin
-              </button>
-            </div>
-
-            {/* Social */}
-            <div className="mt-8 flex items-center gap-4">
-              <div className="flex gap-3">
-                {["𝕏 Twitter", "Telegram", "Discord"].map((s) => (
-                  <a
-                    key={s}
-                    href="#"
-                    className="text-xs font-display tracking-wider uppercase text-ash/70 hover:text-scarlet transition-all duration-300 border-b border-ash/20 hover:border-scarlet pb-0.5 hover:pb-1"
-                  >
-                    {s}
-                  </a>
-                ))}
-              </div>
-              <span className="text-ash/30">·</span>
-              <span className="text-xs text-ash/40 font-display tracking-wider">
-                BUILT ON SUI
-              </span>
-            </div>
-          </div>
-
-          {/* ── Right — Beast with 3-D card ── */}
-          <div
-            className="flex justify-center items-end order-1 lg:order-2 relative"
-            style={{ perspective: 800 }}
-          >
-            {/* Rotating energy ring */}
-            <div
-              ref={glowRingRef}
-              className="absolute bottom-[10%] left-1/2 -translate-x-1/2"
-              style={{
-                width: 400,
-                height: 400,
-                border: "2px solid rgba(192,57,43,0.15)",
-                borderRadius: "50%",
-                boxShadow:
-                  "0 0 30px rgba(192,57,43,0.1), inset 0 0 30px rgba(192,57,43,0.05)",
-                opacity: 0,
-              }}
-            >
-              {[0, 90, 180, 270].map((deg) => (
-                <div
-                  key={deg}
-                  className="absolute w-3 h-3 bg-scarlet/40 rounded-full"
-                  style={{
-                    top: "50%",
-                    left: "50%",
-                    transform: `rotate(${deg}deg) translateX(200px) translate(-50%,-50%)`,
-                    boxShadow: "0 0 10px rgba(192,57,43,0.6)",
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Glow aura */}
-            <div
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 rounded-full"
-              style={{
-                width: 350,
-                height: 350,
-                background:
-                  "radial-gradient(ellipse, rgba(192,57,43,0.3) 0%, rgba(232,77,14,0.1) 40%, transparent 70%)",
-                filter: "blur(40px)",
-                animation: "pulseGlow 3s ease-in-out infinite",
-              }}
-            />
-
-            {/* Beast image — 3-D tilt card */}
-            <div
-              ref={beastCardRef}
-              className="relative z-10"
-              style={{
-                maxWidth: 500,
-                width: "100%",
-                transformStyle: "preserve-3d",
-                opacity: 0,
-              }}
-            >
-              <div ref={beastRef}>
-                <video
-                  className="w-full h-auto"
-                  style={{
-                    filter:
-                      "drop-shadow(0 20px 40px rgba(192,57,43,0.5)) drop-shadow(0 0 80px rgba(232,77,14,0.3))",
-                    transform: "translateZ(30px)",
-                  }}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="metadata"
-                  aria-label="ManBearPig breathing animation"
-                >
-                  <source src="/mbp-breathing.mp4" type="video/mp4" />
-                </video>
-              </div>
-
-              {/* Light reflection overlay */}
-              <div
-                className="absolute inset-0 pointer-events-none rounded-lg"
-                style={{
-                  background:
-                    "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%, rgba(255,255,255,0.03) 100%)",
-                  transform: "translateZ(40px)",
-                }}
-              />
-            </div>
-
-            {/* Floating $MBP badge */}
-            <div className="absolute top-8 right-4 lg:right-0 z-20 hero-float">
-              <div
-                className="bg-scarlet/10 border border-scarlet/40 backdrop-blur-md px-4 py-3 text-center"
-                style={{
-                  clipPath:
-                    "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))",
-                  boxShadow: "0 0 20px rgba(192,57,43,0.2)",
-                }}
-              >
-                <div
-                  className="font-beast text-2xl text-scarlet"
-                  style={{ textShadow: "0 0 20px rgba(192,57,43,0.5)" }}
-                >
-                  $MBP
-                </div>
-                <div className="font-display text-xs tracking-wider text-ash uppercase">
-                  Token
-                </div>
-              </div>
-            </div>
-          </div>
+          <HeroRightPanel
+            rightPanelRef={rightPanelRef}
+            mtnLayer1Ref={mtnLayer1Ref}
+            mtnLayer2Ref={mtnLayer2Ref}
+            mtnLayer3Ref={mtnLayer3Ref}
+            mistARef={mistARef}
+            mistBRef={mistBRef}
+            beastCardRef={beastCardRef}
+            beastRef={beastRef}
+            beastBadgeRef={beastBadgeRef}
+            beastEmberCanvasRef={beastEmberCanvasRef}
+          />
         </div>
 
-        {/* Scroll indicator */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20">
           <span className="font-display text-xs tracking-widest uppercase text-ash/60">
             Scroll Down
@@ -842,7 +786,6 @@ export default function HeroPage() {
         </div>
       </div>
 
-      {/* ═══ Bottom jagged edge ═══ */}
       <div className="absolute bottom-0 left-0 right-0 h-12 z-20">
         <svg
           viewBox="0 0 1440 50"
@@ -855,136 +798,6 @@ export default function HeroPage() {
           />
         </svg>
       </div>
-
-      {/* ═══ Scoped keyframes ═══ */}
-      <style jsx>{`
-        @keyframes pulseGlow {
-          0%,
-          100% {
-            opacity: 0.7;
-            transform: scale(1) translateX(-50%);
-          }
-          50% {
-            opacity: 1;
-            transform: scale(1.15) translateX(-43%);
-          }
-        }
-
-        /* Firefly movement paths */
-        @keyframes firefly0 {
-          0%,
-          100% {
-            transform: translate(0, 0) scale(1);
-            opacity: 0.3;
-          }
-          25% {
-            transform: translate(30px, -20px) scale(1.3);
-            opacity: 0.8;
-          }
-          50% {
-            transform: translate(-10px, -40px) scale(0.8);
-            opacity: 0.2;
-          }
-          75% {
-            transform: translate(20px, -10px) scale(1.1);
-            opacity: 0.7;
-          }
-        }
-        @keyframes firefly1 {
-          0%,
-          100% {
-            transform: translate(0, 0) scale(1);
-            opacity: 0.4;
-          }
-          30% {
-            transform: translate(-25px, 15px) scale(1.2);
-            opacity: 0.9;
-          }
-          60% {
-            transform: translate(15px, -25px) scale(0.7);
-            opacity: 0.3;
-          }
-        }
-        @keyframes firefly2 {
-          0%,
-          100% {
-            transform: translate(0, 0) scale(1);
-            opacity: 0.2;
-          }
-          40% {
-            transform: translate(20px, 30px) scale(1.4);
-            opacity: 0.8;
-          }
-          70% {
-            transform: translate(-30px, -15px) scale(0.9);
-            opacity: 0.5;
-          }
-        }
-
-        .firefly-glow {
-          animation-timing-function: ease-in-out;
-          animation-iteration-count: infinite;
-        }
-
-        /* Star twinkle */
-        .star-twinkle {
-          animation: twinkle 3s ease-in-out infinite;
-        }
-        @keyframes twinkle {
-          0%,
-          100% {
-            opacity: 0.1;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.8;
-            transform: scale(1.5);
-          }
-        }
-
-        /* Floating badge */
-        .hero-float {
-          animation: heroFloat 4s ease-in-out infinite;
-        }
-        @keyframes heroFloat {
-          0%,
-          100% {
-            transform: translateY(0px) rotate(2deg);
-          }
-          50% {
-            transform: translateY(-15px) rotate(-3deg);
-          }
-        }
-
-        /* Aurora shimmer */
-        .aurora-shimmer {
-          animation: auroraShift 8s linear infinite;
-        }
-        @keyframes auroraShift {
-          0% {
-            background-position: 0% 0%;
-          }
-          100% {
-            background-position: 200% 0%;
-          }
-        }
-
-        /* Scroll line */
-        .scroll-line-pulse {
-          animation: scrollPulse 2s ease-in-out infinite;
-        }
-        @keyframes scrollPulse {
-          0%,
-          100% {
-            opacity: 0.4;
-            height: 40px;
-          }
-          50% {
-            opacity: 0.8;
-            height: 50px;
-          }
-        }
-      `}</style>
     </section>
   );
 }

@@ -849,6 +849,10 @@ body {
   );
 }
 
+.beast-video-wrap video {
+  display: block;
+}
+
 .beast-mist-a {
   animation: mistDriftA 12s ease-in-out infinite;
 }

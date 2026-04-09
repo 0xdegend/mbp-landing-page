@@ -22,6 +22,11 @@ const DEXSCREENER_URL =
   "https://dexscreener.com/sui/0x4d68a38f0c7abcea02106da3bab76f5e6b0b242c100746eb1ef9692cd1129d25::mbp::MBP";
 const SUISCAN_URL =
   "https://suiscan.xyz/mainnet/coin/0x4d68a38f0c7abcea02106da3bab76f5e6b0b242c100746eb1ef9692cd1129d25::mbp::MBP";
+const NOODLES_URL =
+  "https://noodles.fi/coins/0x4d68a38f0c7abcea02106da3bab76f5e6b0b242c100746eb1ef9692cd1129d25::mbp::MBP";
+const COINMUM_URL = "https://coinmun.com/coins/manbearpig-1";
+const AFTERMATH_URL =
+  "https://aftermath.finance/farms/0xf09c59df4f57add24e73037a2a920e7d5c8bf6e0ae819f53e397c504cf230d25";
 
 /* ═══════════════════════════════════════════════════════
    Hooks
@@ -763,6 +768,197 @@ function SuiScanCard() {
 }
 
 /* ═══════════════════════════════════════════════════════
+   Listing Card
+   ═══════════════════════════════════════════════════════ */
+type ListingCardProps = {
+  href: string;
+  label: string;
+  title: string;
+  description: string;
+  badge: string;
+  accent: string;
+  icon: React.ReactNode;
+};
+
+function ListingCard({
+  href,
+  label,
+  title,
+  description,
+  badge,
+  accent,
+  icon,
+}: ListingCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const { handleMove, handleLeave } = useMagneticTilt(cardRef);
+
+  useEffect(() => {
+    if (!cardRef.current) return;
+    gsap.fromTo(
+      cardRef.current,
+      { opacity: 0, y: 50, scale: 0.96 },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: cardRef.current,
+          start: "top 85%",
+          once: true,
+        },
+      },
+    );
+  }, []);
+
+  return (
+    <div
+      ref={cardRef}
+      className="eco-card-v2 group"
+      style={{ opacity: 0, perspective: 600 }}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+    >
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block h-full"
+      >
+        <div className="relative bg-[#0a0e08]/80 backdrop-blur-sm rounded-lg p-6 h-full flex flex-col border border-white/[0.04] transition-colors duration-500 overflow-hidden hover:border-white/[0.08]">
+          <div
+            className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-current to-transparent opacity-30"
+            style={{ color: accent }}
+          />
+          <GlowLine color={accent} />
+
+          <div className="flex items-center gap-3 mb-5">
+            <div
+              className="w-9 h-9 rounded-md flex items-center justify-center"
+              style={{
+                background: `${accent}1a`,
+                border: `1px solid ${accent}33`,
+                color: accent,
+              }}
+            >
+              {icon}
+            </div>
+            <div>
+              <h3 className="font-beast text-lg text-bone leading-none">
+                {title}
+              </h3>
+              <p className="font-display text-[9px] tracking-[0.2em] uppercase text-moss mt-0.5">
+                {label}
+              </p>
+            </div>
+          </div>
+
+          <div
+            className="relative mb-5 flex-1 min-h-[108px] overflow-hidden rounded-md p-4"
+            style={{
+              background: "rgba(10,13,8,0.5)",
+              border: `1px solid ${accent}14`,
+            }}
+          >
+            <div className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity duration-500">
+              <div
+                className="absolute inset-x-6 top-5 h-px"
+                style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
+              />
+              <div
+                className="absolute inset-x-10 top-1/2 h-px"
+                style={{ background: `linear-gradient(90deg, transparent, ${accent}66, transparent)` }}
+              />
+              <div
+                className="absolute inset-x-14 bottom-5 h-px"
+                style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
+              />
+            </div>
+
+            <div className="relative h-full flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span className="font-display text-[9px] tracking-[0.2em] uppercase text-ash/40">
+                  Listing
+                </span>
+                <span
+                  className="px-2 py-1 rounded font-display text-[9px] tracking-[0.2em] uppercase"
+                  style={{
+                    color: accent,
+                    background: `${accent}14`,
+                    border: `1px solid ${accent}22`,
+                  }}
+                >
+                  {badge}
+                </span>
+              </div>
+
+              <div className="flex items-end justify-between gap-4">
+                <p className="font-body text-sm text-bone/80 leading-relaxed max-w-[14rem]">
+                  {description}
+                </p>
+                <div
+                  className="eco-block w-12 h-12 rounded-md flex items-center justify-center shrink-0"
+                  style={{
+                    background: `${accent}10`,
+                    border: `1px solid ${accent}1f`,
+                  }}
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M5 19L19 5M9 5h10v10"
+                      stroke={accent}
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-auto flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="font-display text-[8px] tracking-[0.2em] uppercase text-ash/40">
+                Open
+              </span>
+              <span
+                className="font-display text-[10px] tracking-wider font-semibold"
+                style={{ color: accent }}
+              >
+                View listing
+              </span>
+            </div>
+            <div
+              className="flex items-center gap-1.5 transition-colors duration-300 group-hover:text-bone"
+              style={{ color: `${accent}b3` }}
+            >
+              <span className="font-display text-[10px] tracking-widest uppercase">
+                Launch
+              </span>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transform group-hover:translate-x-1 transition-transform duration-300"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
    Main Ecosystem Component
    ═══════════════════════════════════════════════════════ */
 export default function Ecosystem() {
@@ -843,6 +1039,94 @@ export default function Ecosystem() {
           <CACard />
           <DexScreenerCard />
           <SuiScanCard />
+        </div>
+
+        {/* Listing section */}
+        <div className="mt-14">
+          <div className="flex items-center gap-3 justify-center mb-6">
+            <div className="h-px flex-1 max-w-[70px] bg-gradient-to-r from-transparent to-ember/40" />
+            <span className="font-display text-[10px] tracking-[0.35em] uppercase text-ember/70">
+              Listings & Pools
+            </span>
+            <div className="h-px flex-1 max-w-[70px] bg-gradient-to-l from-transparent to-ember/40" />
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            <ListingCard
+              href={NOODLES_URL}
+              label="DEX Listing"
+              title="NOODLES"
+              description="$MBP is listed on Noodles for fast discovery and trading."
+              badge="Live"
+              accent="#e84d0e"
+              icon={
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M6 7h12" />
+                  <path d="M8 7c0 6 8 6 8 12" />
+                  <path d="M10 7c0 4 4 4 4 8" />
+                </svg>
+              }
+            />
+
+            <ListingCard
+              href={COINMUM_URL}
+              label="Market Page"
+              title="COINMUM"
+              description="Catch the MBP market page on Coinmum for community visibility."
+              badge="Track"
+              accent="#c0392b"
+              icon={
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="7" />
+                  <path d="M9 12h6" />
+                  <path d="M12 9v6" />
+                </svg>
+              }
+            />
+
+            <ListingCard
+              href={AFTERMATH_URL}
+              label="Staking Pool"
+              title="AFTERMATH"
+              description="Stake MBP in the Aftermath farm and keep the beast earning."
+              badge="Farm"
+              accent="#7ec8e3"
+              icon={
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4 18h16" />
+                  <path d="M6 18V7l6-3 6 3v11" />
+                  <path d="M9 18v-5h6v5" />
+                </svg>
+              }
+            />
+          </div>
         </div>
 
         {/* Disclaimer */}

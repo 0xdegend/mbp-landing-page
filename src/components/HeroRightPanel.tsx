@@ -68,7 +68,7 @@ export default function HeroRightPanel({
             preload="metadata"
             aria-label="ManBearPig breathing animation"
           >
-            <source src="/mbp-breathing.mp4" type="video/mp4" />
+            <source src="/breathing-beast.mp4" type="video/mp4" />
           </video>
         </div>
 

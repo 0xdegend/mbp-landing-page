@@ -207,7 +207,7 @@ export default function AllianceComponent() {
           </div>
 
           <h2 className="gallery-reveal font-beast text-4xl leading-[0.9] text-bone sm:text-5xl lg:text-6xl xl:text-7xl">
-            THE
+            SUI
             <br />
             <span
               style={{

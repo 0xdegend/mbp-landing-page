@@ -16,9 +16,9 @@ export default function Home() {
       <BeastNavbar />
       <HeroPage />
       <BeastMarquee />
+      <LoreSection />
       <Ecosystem />
       <BurnComponent />
-      <LoreSection />
       <PackStats />
       <AllianceComponent />
       <RoadmapSection />

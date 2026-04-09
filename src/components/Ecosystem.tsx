@@ -864,15 +864,21 @@ function ListingCard({
             <div className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity duration-500">
               <div
                 className="absolute inset-x-6 top-5 h-px"
-                style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
+                style={{
+                  background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
+                }}
               />
               <div
                 className="absolute inset-x-10 top-1/2 h-px"
-                style={{ background: `linear-gradient(90deg, transparent, ${accent}66, transparent)` }}
+                style={{
+                  background: `linear-gradient(90deg, transparent, ${accent}66, transparent)`,
+                }}
               />
               <div
                 className="absolute inset-x-14 bottom-5 h-px"
-                style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
+                style={{
+                  background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
+                }}
               />
             </div>
 
@@ -1022,7 +1028,7 @@ export default function Ecosystem() {
           <div className="flex items-center gap-3 justify-center mb-4">
             <div className="h-px flex-1 max-w-[60px] bg-gradient-to-r from-transparent to-scarlet/40" />
             <span className="font-display text-[10px] tracking-[0.35em] uppercase text-scarlet/60">
-              Beast Intelligence
+              THE BEAST
             </span>
             <div className="h-px flex-1 max-w-[60px] bg-gradient-to-l from-transparent to-scarlet/40" />
           </div>

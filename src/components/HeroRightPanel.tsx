@@ -52,12 +52,11 @@ export default function HeroRightPanel({
           opacity: 0,
         }}
       >
-        <div ref={beastRef} className="relative beast-video-wrap">
+        <div ref={beastRef} className="relative beast-video-wrap-v2">
           <video
             className="w-full h-auto"
             style={
               {
-                filter: "brightness(1)",
                 transition: "filter 0.3s ease",
               } as CSSProperties
             }

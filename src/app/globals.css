@@ -519,7 +519,8 @@ body {
 
 /* Card hover lift */
 .eco-card {
-  transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1),
+  transition:
+    transform 0.35s cubic-bezier(0.23, 1, 0.32, 1),
     box-shadow 0.35s ease;
 }
 
@@ -849,7 +850,120 @@ body {
   );
 }
 
-.beast-video-wrap video {
+.beast-video-wrap-v2 {
+  position: relative;
+
+  /* Stack 4 mask layers, all must pass for pixel to show */
+  -webkit-mask-image:
+    /* 1. Face-centered radial — the hero zone stays fully opaque */
+    radial-gradient(
+      ellipse 82% 72% at 50% 34%,
+      black 28%,
+      rgba(0, 0, 0, 0.92) 42%,
+      rgba(0, 0, 0, 0.6) 60%,
+      rgba(0, 0, 0, 0.18) 78%,
+      transparent 100%
+    ),
+    /* 2. Bottom dissolve — ground melt, heavier than the radial alone */
+    linear-gradient(
+        0deg,
+        transparent 0%,
+        rgba(0, 0, 0, 0.25) 12%,
+        rgba(0, 0, 0, 0.7) 26%,
+        black 42%,
+        black 100%
+      ),
+    /* 3. Left-edge feather */
+    linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(0, 0, 0, 0.35) 8%,
+        rgba(0, 0, 0, 0.75) 18%,
+        black 30%,
+        black 100%
+      ),
+    /* 4. Right-edge feather */
+    linear-gradient(
+        270deg,
+        transparent 0%,
+        rgba(0, 0, 0, 0.2) 6%,
+        rgba(0, 0, 0, 0.65) 16%,
+        black 28%,
+        black 100%
+      );
+
+  -webkit-mask-composite: source-in, source-in, source-in;
+  -webkit-mask-size:
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%;
+
+  /* Standard mask (Firefox / future) */
+  mask-image:
+    radial-gradient(
+      ellipse 82% 72% at 50% 34%,
+      black 28%,
+      rgba(0, 0, 0, 0.92) 42%,
+      rgba(0, 0, 0, 0.6) 60%,
+      rgba(0, 0, 0, 0.18) 78%,
+      transparent 100%
+    ),
+    linear-gradient(
+      0deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.25) 12%,
+      rgba(0, 0, 0, 0.7) 26%,
+      black 42%,
+      black 100%
+    ),
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.35) 8%,
+      rgba(0, 0, 0, 0.75) 18%,
+      black 30%,
+      black 100%
+    ),
+    linear-gradient(
+      270deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.2) 6%,
+      rgba(0, 0, 0, 0.65) 16%,
+      black 28%,
+      black 100%
+    );
+
+  mask-composite: intersect;
+  mask-size:
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%;
+}
+
+/* ── Hover: whole video brightens slightly ──────────── */
+.beast-video-wrap-v2:hover video {
+  filter: brightness(1.1) contrast(1.08) saturate(1.12) !important;
+}
+.beast-video-wrap-v2::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 13, 8, 0.98) 0%,
+    rgba(10, 13, 8, 0.7) 18%,
+    transparent 55%
+  );
+  mix-blend-mode: multiply;
+}
+
+.beast-video-wrap-v2 video {
+  position: relative;
+  z-index: 0;
   display: block;
 }
 

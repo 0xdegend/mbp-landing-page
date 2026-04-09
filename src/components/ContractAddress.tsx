@@ -5,8 +5,15 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const CONTRACT_ADDRESS = "0xMBP...SUI1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f";
-const DISPLAY_ADDRESS = "0xMBP...SUI1a2b3c4d5e6f";
+const CONTRACT_ADDRESS =
+  "0x4d68a38f0c7abcea02106da3bab76f5e6b0b242c100746eb1ef9692cd1129d25::mbp::MBP";
+
+function truncateMiddle(value: string, keepStart = 14, keepEnd = 14) {
+  if (value.length <= keepStart + keepEnd + 3) return value;
+  return `${value.slice(0, keepStart)}...${value.slice(-keepEnd)}`;
+}
+
+const DISPLAY_ADDRESS = truncateMiddle(CONTRACT_ADDRESS, 14, 16);
 
 const SCRAMBLE_CHARS = "ABCDEF0123456789xX☠🐾◆▲";
 
@@ -33,10 +40,10 @@ function useScrambleText(target: string, trigger: boolean) {
             i < resolved
               ? ch
               : ch === "." || ch === "x" || ch === "0"
-              ? ch
-              : chars[Math.floor(Math.random() * chars.length)]
+                ? ch
+                : chars[Math.floor(Math.random() * chars.length)],
           )
-          .join("")
+          .join(""),
       );
 
       if (frame < totalFrames) {
@@ -114,7 +121,7 @@ export default function ContractAddress() {
     tl.fromTo(
       containerRef.current,
       { opacity: 0, y: 60, scale: 0.95 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power3.out" }
+      { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power3.out" },
     );
 
     // Claw marks slash in
@@ -131,7 +138,7 @@ export default function ContractAddress() {
           ease: "power4.in",
           transformOrigin: "left center",
         },
-        "-=0.3"
+        "-=0.3",
       );
     }
 
@@ -140,7 +147,7 @@ export default function ContractAddress() {
       scanlineRef.current,
       { x: "-100%", opacity: 1 },
       { x: "110%", duration: 0.8, ease: "power2.inOut" },
-      "-=0.1"
+      "-=0.1",
     );
 
     // Trigger scramble then settle
@@ -152,11 +159,12 @@ export default function ContractAddress() {
       addressRef.current,
       { boxShadow: "0 0 0 rgba(192,57,43,0)" },
       {
-        boxShadow: "0 0 30px rgba(192,57,43,0.25), inset 0 0 20px rgba(192,57,43,0.05)",
+        boxShadow:
+          "0 0 30px rgba(192,57,43,0.25), inset 0 0 20px rgba(192,57,43,0.05)",
         duration: 1,
         ease: "power2.out",
       },
-      "-=0.5"
+      "-=0.5",
     );
 
     return () => ScrollTrigger.getAll().forEach((t) => t.kill());
@@ -169,10 +177,26 @@ export default function ContractAddress() {
     navigator.clipboard.writeText(CONTRACT_ADDRESS).then(() => {
       // Claw-strike button animation
       if (copyBtnRef.current) {
-        gsap.timeline()
-          .to(copyBtnRef.current, { scale: 0.88, rotateZ: -3, duration: 0.08, ease: "power4.in" })
-          .to(copyBtnRef.current, { scale: 1.08, rotateZ: 1, duration: 0.15, ease: "back.out(3)" })
-          .to(copyBtnRef.current, { scale: 1, rotateZ: 0, duration: 0.2, ease: "power2.out" });
+        gsap
+          .timeline()
+          .to(copyBtnRef.current, {
+            scale: 0.88,
+            rotateZ: -3,
+            duration: 0.08,
+            ease: "power4.in",
+          })
+          .to(copyBtnRef.current, {
+            scale: 1.08,
+            rotateZ: 1,
+            duration: 0.15,
+            ease: "back.out(3)",
+          })
+          .to(copyBtnRef.current, {
+            scale: 1,
+            rotateZ: 0,
+            duration: 0.2,
+            ease: "power2.out",
+          });
       }
 
       // Particle burst
@@ -182,27 +206,43 @@ export default function ContractAddress() {
 
       // Stamp seal drops
       if (stampRef.current) {
-        gsap.timeline()
+        gsap
+          .timeline()
           .set(stampRef.current, { display: "flex" })
           .fromTo(
             stampRef.current,
             { scale: 2.5, opacity: 0, rotation: -15 },
-            { scale: 1, opacity: 1, rotation: -8, duration: 0.4, ease: "back.out(2)" }
+            {
+              scale: 1,
+              opacity: 1,
+              rotation: -8,
+              duration: 0.4,
+              ease: "back.out(2)",
+            },
           )
-          .to(stampRef.current, { opacity: 0, scale: 0.8, duration: 0.3, delay: 1.4, ease: "power2.in" })
+          .to(stampRef.current, {
+            opacity: 0,
+            scale: 0.8,
+            duration: 0.3,
+            delay: 1.4,
+            ease: "power2.in",
+          })
           .set(stampRef.current, { display: "none" });
       }
 
       // Address field flash
       if (addressRef.current) {
-        gsap.timeline()
+        gsap
+          .timeline()
           .to(addressRef.current, {
-            boxShadow: "0 0 60px rgba(192,57,43,0.6), inset 0 0 30px rgba(192,57,43,0.15)",
+            boxShadow:
+              "0 0 60px rgba(192,57,43,0.6), inset 0 0 30px rgba(192,57,43,0.15)",
             borderColor: "rgba(192,57,43,0.8)",
             duration: 0.15,
           })
           .to(addressRef.current, {
-            boxShadow: "0 0 30px rgba(192,57,43,0.25), inset 0 0 20px rgba(192,57,43,0.05)",
+            boxShadow:
+              "0 0 30px rgba(192,57,43,0.25), inset 0 0 20px rgba(192,57,43,0.05)",
             borderColor: "rgba(192,57,43,0.3)",
             duration: 0.6,
           });
@@ -225,7 +265,6 @@ export default function ContractAddress() {
     if (!copyBtnRef.current || copied) return;
     gsap.to(copyBtnRef.current, {
       scale: 1.04,
-      boxShadow: "0 0 30px rgba(192,57,43,0.4), 4px 4px 0 #8b1a1a",
       duration: 0.2,
       ease: "power2.out",
     });
@@ -235,14 +274,16 @@ export default function ContractAddress() {
     if (!copyBtnRef.current) return;
     gsap.to(copyBtnRef.current, {
       scale: 1,
-      boxShadow: "4px 4px 0 #8b1a1a",
       duration: 0.2,
       ease: "power2.out",
     });
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-20 bg-[#060a05] overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="relative py-20 bg-[#060a05] overflow-hidden"
+    >
       {/* Noise texture */}
       <div
         className="absolute inset-0 pointer-events-none opacity-30"
@@ -258,14 +299,14 @@ export default function ContractAddress() {
         style={{
           width: 600,
           height: 300,
-          background: "radial-gradient(ellipse, rgba(192,57,43,0.07) 0%, transparent 70%)",
+          background:
+            "radial-gradient(ellipse, rgba(192,57,43,0.07) 0%, transparent 70%)",
           filter: "blur(40px)",
           zIndex: 0,
         }}
       />
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-
         {/* Section label */}
         <div className="flex items-center gap-3 mb-8 justify-center">
           <div className="h-px flex-1 max-w-[80px] bg-gradient-to-r from-transparent to-scarlet/40" />
@@ -282,7 +323,10 @@ export default function ContractAddress() {
           style={{ opacity: 0 }}
         >
           {/* Claw marks — top-left decoration */}
-          <div ref={clawsRef} className="absolute -top-3 -left-2 z-20 pointer-events-none">
+          <div
+            ref={clawsRef}
+            className="absolute -top-3 -left-2 z-20 pointer-events-none"
+          >
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
@@ -290,7 +334,8 @@ export default function ContractAddress() {
                 style={{
                   width: 60 - i * 8,
                   height: 3,
-                  background: "linear-gradient(90deg, rgba(192,57,43,0.9), transparent)",
+                  background:
+                    "linear-gradient(90deg, rgba(192,57,43,0.9), transparent)",
                   top: i * 9,
                   left: i * 4,
                   transform: `rotate(${12 - i * 4}deg) scaleX(0)`,
@@ -302,14 +347,22 @@ export default function ContractAddress() {
           </div>
 
           {/* Corner accents */}
-          {["top-0 left-0", "top-0 right-0 rotate-90", "bottom-0 right-0 rotate-180", "bottom-0 left-0 -rotate-90"].map((pos, i) => (
+          {[
+            "top-0 left-0",
+            "top-0 right-0 rotate-90",
+            "bottom-0 right-0 rotate-180",
+            "bottom-0 left-0 -rotate-90",
+          ].map((pos, i) => (
             <div
               key={i}
               className={`absolute ${pos} pointer-events-none`}
               style={{ zIndex: 10 }}
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M0 0 L14 0 L14 2 L2 2 L2 14 L0 14 Z" fill="rgba(192,57,43,0.5)" />
+                <path
+                  d="M0 0 L14 0 L14 2 L2 2 L2 14 L0 14 Z"
+                  fill="rgba(192,57,43,0.5)"
+                />
               </svg>
             </div>
           ))}
@@ -333,7 +386,7 @@ export default function ContractAddress() {
                     CONTRACT ADDRESS
                   </h2>
                   <p className="font-display text-xs tracking-[0.2em] uppercase text-moss">
-                    $MBP · Sui Network · Specimen #001
+                    $MBP · Sui Network
                   </p>
                 </div>
 
@@ -341,7 +394,8 @@ export default function ContractAddress() {
                 <div
                   className="flex items-center gap-1.5 border border-sky-ice/20 bg-sky-ice/5 px-3 py-1.5 shrink-0"
                   style={{
-                    clipPath: "polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)",
+                    clipPath:
+                      "polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)",
                   }}
                 >
                   <span className="relative flex h-1.5 w-1.5">
@@ -384,15 +438,17 @@ export default function ContractAddress() {
 
                   {/* Address text */}
                   <div className="px-4 py-4 flex items-center gap-3">
-                    <span
-                      className="text-[10px] font-display tracking-widest uppercase text-scarlet/50 shrink-0 hidden sm:block"
-                    >
+                    <span className="text-[10px] font-display tracking-widest uppercase text-scarlet/50 shrink-0 hidden sm:block">
                       CA
                     </span>
                     <div className="w-px h-5 bg-scarlet/20 shrink-0 hidden sm:block" />
                     <span
-                      className="font-mono text-sm text-bone/90 tracking-wider break-all leading-relaxed group-hover:text-bone transition-colors duration-200"
+                      className="font-mono text-sm text-bone/90 tracking-wider whitespace-nowrap leading-relaxed group-hover:text-bone transition-colors duration-200"
                       style={{
+                        maxWidth: "100%",
+                        display: "inline-block",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
                         textShadow: hovered
                           ? "0 0 12px rgba(192,57,43,0.4)"
                           : "none",
@@ -413,43 +469,38 @@ export default function ContractAddress() {
                   />
                 </div>
 
-                {/* Copy button */}
+                {/* Copy button — uses beast primary style */}
                 <button
                   ref={copyBtnRef}
                   onClick={handleCopy}
                   onMouseEnter={handleBtnEnter}
                   onMouseLeave={handleBtnLeave}
                   disabled={copied}
-                  className="relative shrink-0 font-display font-bold text-sm tracking-widest uppercase overflow-hidden"
+                  className={`btn-beast shrink-0 ${copied ? "btn-beast-seized" : "btn-beast-primary"}`}
                   style={{
-                    padding: "14px 28px",
-                    background: copied ? "rgba(46,139,87,0.2)" : "#c0392b",
-                    color: copied ? "#4a7c59" : "#e8dcc8",
-                    border: copied ? "1px solid rgba(46,139,87,0.4)" : "none",
-                    clipPath:
-                      "polygon(8px 0, calc(100% - 0px) 0, 100% 8px, 100% 100%, calc(100% - 8px) 100%, 0 100%, 0 8px)",
-                    boxShadow: "4px 4px 0 #8b1a1a",
-                    transition: "background 0.3s ease, color 0.3s ease",
                     cursor: copied ? "default" : "pointer",
                   }}
                 >
-                  {/* Shimmer sweep */}
-                  <span
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%)",
-                      transform: "translateX(-100%) skewX(-20deg)",
-                      animation: copied ? "none" : "btnShimmer 3s ease-in-out infinite",
-                    }}
-                  />
+                  {/* Scarlet edge bar (hidden when seized) */}
+                  {!copied && <span className="btn-edge-bar" />}
 
                   {/* Label */}
-                  <span className="relative z-10 flex items-center gap-2 whitespace-nowrap">
+                  <span className="btn-text flex items-center gap-2 whitespace-nowrap">
                     {copied ? (
                       <>
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <path d="M2 7L5.5 10.5L12 3.5" stroke="#4a7c59" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 14 14"
+                          fill="none"
+                        >
+                          <path
+                            d="M2 7L5.5 10.5L12 3.5"
+                            stroke="#4a7c59"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
                         </svg>
                         SEIZED
                       </>
@@ -469,7 +520,6 @@ export default function ContractAddress() {
                   {[
                     { label: "Network", value: "Sui" },
                     { label: "Symbol", value: "$MBP" },
-                    { label: "Type", value: "Meme Token" },
                   ].map(({ label, value }) => (
                     <div key={label} className="flex flex-col">
                       <span className="font-display text-[9px] tracking-[0.2em] uppercase text-ash/40">
@@ -509,7 +559,8 @@ export default function ContractAddress() {
                 alignItems: "center",
                 justifyContent: "center",
                 transform: "rotate(-8deg)",
-                boxShadow: "0 0 40px rgba(192,57,43,0.4), inset 0 0 20px rgba(192,57,43,0.1)",
+                boxShadow:
+                  "0 0 40px rgba(192,57,43,0.4), inset 0 0 20px rgba(192,57,43,0.1)",
                 background: "rgba(10,13,8,0.85)",
               }}
             >
@@ -526,7 +577,8 @@ export default function ContractAddress() {
 
         {/* Below-card disclaimer */}
         <p className="mt-6 text-center font-display text-[10px] tracking-widest uppercase text-ash/30">
-          🐾 The Beast does not give financial advice · DYOR · Not a man. Not a bear. Not a pig.
+          🐾 The Beast does not give financial advice · DYOR · Not a man. Not a
+          bear. Not a pig.
         </p>
       </div>
 

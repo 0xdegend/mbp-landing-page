@@ -33,9 +33,6 @@ export default function HeroPage() {
 
   const mistARef = useRef<HTMLDivElement>(null);
   const mistBRef = useRef<HTMLDivElement>(null);
-  const mtnLayer1Ref = useRef<HTMLDivElement>(null);
-  const mtnLayer2Ref = useRef<HTMLDivElement>(null);
-  const mtnLayer3Ref = useRef<HTMLDivElement>(null);
   const beastBadgeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -158,21 +155,7 @@ export default function HeroPage() {
         );
       }
 
-      /* ── Phase 7: Mountains drift up ──────────────────────── */
-      tl.fromTo(
-        [mtnLayer1Ref.current, mtnLayer2Ref.current, mtnLayer3Ref.current],
-        { opacity: 0, y: 60 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1.8,
-          stagger: 0.15,
-          ease: "power2.out",
-        },
-        1.2,
-      );
-
-      /* ── Phase 8: Mist fades in ──────────────────────────── */
+      /* ── Phase 7: Mist fades in ──────────────────────────── */
       tl.fromTo(
         [mistARef.current, mistBRef.current],
         { opacity: 0 },
@@ -766,9 +749,6 @@ export default function HeroPage() {
 
           <HeroRightPanel
             rightPanelRef={rightPanelRef}
-            mtnLayer1Ref={mtnLayer1Ref}
-            mtnLayer2Ref={mtnLayer2Ref}
-            mtnLayer3Ref={mtnLayer3Ref}
             mistARef={mistARef}
             mistBRef={mistBRef}
             beastCardRef={beastCardRef}

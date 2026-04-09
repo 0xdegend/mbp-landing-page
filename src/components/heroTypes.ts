@@ -26,9 +26,6 @@ export type HeroLeftPanelRefs = {
 
 export type HeroRightPanelRefs = {
   rightPanelRef: RefObject<HTMLDivElement>;
-  mtnLayer1Ref: RefObject<HTMLDivElement>;
-  mtnLayer2Ref: RefObject<HTMLDivElement>;
-  mtnLayer3Ref: RefObject<HTMLDivElement>;
   mistARef: RefObject<HTMLDivElement>;
   mistBRef: RefObject<HTMLDivElement>;
   beastCardRef: RefObject<HTMLDivElement>;

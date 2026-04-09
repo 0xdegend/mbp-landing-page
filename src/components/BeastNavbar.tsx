@@ -92,12 +92,12 @@ export default function BeastNavbar() {
             </div>
 
             {/* CTA + Mobile Menu */}
-            <div className="flex items-center gap-3">
+            <div className="flex  items-center gap-3">
               <a
                 href="https://sui.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden lg:flex btn-beast btn-beast-primary text-sm"
+                className="!hidden lg:!inline-flex btn-beast btn-beast-primary text-sm"
               >
                 Buy $MBP
               </a>

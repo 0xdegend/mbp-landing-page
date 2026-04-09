@@ -154,6 +154,7 @@ function CACard() {
   const addressRef = useRef<HTMLDivElement>(null);
   const copyBtnRef = useRef<HTMLButtonElement>(null);
   const stampRef = useRef<HTMLDivElement>(null);
+  const iconRef = useRef<HTMLDivElement>(null);
 
   const [copied, setCopied] = useState(false);
   const [scrambleActive, setScrambleActive] = useState(false);
@@ -178,6 +179,22 @@ function CACard() {
     );
     tl.call(() => setScrambleActive(true), [], "-=0.3");
     tl.call(() => setScrambleActive(false), [], "+=0.6");
+
+    /* Claw SVG — scratching motion on the paths */
+    if (iconRef.current) {
+      const paths = iconRef.current.querySelectorAll("path");
+      paths.forEach((p, i) => {
+        gsap.to(p, {
+          y: -1.5,
+          x: 0.5,
+          duration: 0.4,
+          repeat: -1,
+          yoyo: true,
+          ease: "power1.inOut",
+          delay: i * 0.15,
+        });
+      });
+    }
   }, []);
 
   const handleCopy = useCallback(() => {
@@ -275,7 +292,7 @@ function CACard() {
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-md bg-scarlet/10 flex items-center justify-center">
+            <div ref={iconRef} className="w-9 h-9 rounded-md bg-scarlet/10 flex items-center justify-center">
               <ClawIcon color="#c0392b" />
             </div>
             <div>
@@ -415,27 +432,46 @@ function CACard() {
 function DexScreenerCard() {
   const cardRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<HTMLDivElement>(null);
+  const iconRef = useRef<HTMLDivElement>(null);
   const { handleMove, handleLeave } = useMagneticTilt(cardRef);
 
   useEffect(() => {
     if (!cardRef.current) return;
-    gsap.fromTo(
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: cardRef.current,
+        start: "top 85%",
+        once: true,
+      },
+    });
+
+    tl.fromTo(
       cardRef.current,
       { opacity: 0, y: 50, scale: 0.96 },
-      {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 0.8,
-        delay: 0.12,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: cardRef.current,
-          start: "top 85%",
-          once: true,
-        },
-      },
+      { opacity: 1, y: 0, scale: 1, duration: 0.8, delay: 0.12, ease: "power3.out" },
     );
+
+    /* Heartbeat SVG — pulse up and down */
+    if (iconRef.current) {
+      const polyline = iconRef.current.querySelector("polyline");
+      if (polyline) {
+        gsap.to(polyline, {
+          y: -1.5,
+          duration: 0.6,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        });
+        gsap.to(polyline, {
+          strokeWidth: 2.8,
+          duration: 0.8,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          delay: 0.3,
+        });
+      }
+    }
   }, []);
 
   const handleChartEnter = useCallback(() => {
@@ -474,7 +510,7 @@ function DexScreenerCard() {
 
           {/* Header */}
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-md bg-ember/10 flex items-center justify-center">
+            <div ref={iconRef} className="w-9 h-9 rounded-md bg-ember/10 flex items-center justify-center">
               <svg
                 width="18"
                 height="18"
@@ -599,27 +635,39 @@ function DexScreenerCard() {
 function SuiScanCard() {
   const cardRef = useRef<HTMLDivElement>(null);
   const blocksRef = useRef<HTMLDivElement>(null);
+  const iconRef = useRef<HTMLDivElement>(null);
   const { handleMove, handleLeave } = useMagneticTilt(cardRef);
 
   useEffect(() => {
     if (!cardRef.current) return;
-    gsap.fromTo(
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: cardRef.current,
+        start: "top 85%",
+        once: true,
+      },
+    });
+
+    tl.fromTo(
       cardRef.current,
       { opacity: 0, y: 50, scale: 0.96 },
-      {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 0.8,
-        delay: 0.24,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: cardRef.current,
-          start: "top 85%",
-          once: true,
-        },
-      },
+      { opacity: 1, y: 0, scale: 1, duration: 0.8, delay: 0.24, ease: "power3.out" },
     );
+
+    /* Grid SVG — staggered block pulse like a blockchain */
+    if (iconRef.current) {
+      const rects = iconRef.current.querySelectorAll("rect");
+      rects.forEach((rect, i) => {
+        gsap.to(rect, {
+          opacity: 0.4,
+          duration: 0.4,
+          repeat: -1,
+          yoyo: true,
+          ease: "power1.inOut",
+          delay: i * 0.3,
+        });
+      });
+    }
   }, []);
 
   const handleBlocksEnter = useCallback(() => {
@@ -661,7 +709,7 @@ function SuiScanCard() {
 
           {/* Header */}
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-md bg-sky-ice/10 flex items-center justify-center">
+            <div ref={iconRef} className="w-9 h-9 rounded-md bg-sky-ice/10 flex items-center justify-center">
               <svg
                 width="18"
                 height="18"
@@ -790,6 +838,7 @@ function ListingCard({
   icon,
 }: ListingCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const listingIconRef = useRef<HTMLDivElement>(null);
   const { handleMove, handleLeave } = useMagneticTilt(cardRef);
 
   useEffect(() => {
@@ -810,7 +859,89 @@ function ListingCard({
         },
       },
     );
-  }, []);
+
+    /* Animate SVG inside based on card type */
+    if (listingIconRef.current) {
+      const svg = listingIconRef.current.querySelector("svg");
+      if (!svg) return;
+      const paths = svg.querySelectorAll("path, circle, line");
+
+      if (title === "NOODLES") {
+        // Noodles: wavy wiggle on each path
+        paths.forEach((p, i) => {
+          gsap.to(p, {
+            x: i % 2 === 0 ? 1 : -1,
+            y: -0.8,
+            duration: 0.5 + i * 0.15,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            delay: i * 0.2,
+          });
+        });
+      } else if (title === "COINMUM") {
+        // Coin: circle gentle spin + cross pulse
+        const circle = svg.querySelector("circle");
+        const lines = svg.querySelectorAll("path");
+        if (circle) {
+          gsap.to(circle, {
+            strokeDashoffset: -44,
+            duration: 3,
+            repeat: -1,
+            ease: "none",
+          });
+          // Set dasharray first
+          (circle as SVGElement).style.strokeDasharray = "6 2";
+        }
+        lines.forEach((l, i) => {
+          gsap.to(l, {
+            scaleX: 0.85,
+            scaleY: 0.85,
+            transformOrigin: "center",
+            duration: 0.6,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            delay: i * 0.3,
+          });
+        });
+      } else if (title === "AFTERMATH") {
+        // Building: breathing lift on the structure
+        const allPaths = svg.querySelectorAll("path");
+        if (allPaths[0]) {
+          // Base line stays
+          gsap.to(allPaths[0], {
+            opacity: 0.5,
+            duration: 1,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+          });
+        }
+        if (allPaths[1]) {
+          // Building body lifts
+          gsap.to(allPaths[1], {
+            y: -1,
+            duration: 1.5,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+          });
+        }
+        if (allPaths[2]) {
+          // Door pulses
+          gsap.to(allPaths[2], {
+            opacity: 0.4,
+            duration: 0.8,
+            repeat: -1,
+            yoyo: true,
+            ease: "power1.inOut",
+            delay: 0.4,
+          });
+        }
+      }
+    }
+  }, [title]);
 
   return (
     <div
@@ -835,6 +966,7 @@ function ListingCard({
 
           <div className="flex items-center gap-3 mb-5">
             <div
+              ref={listingIconRef}
               className="w-9 h-9 rounded-md flex items-center justify-center"
               style={{
                 background: `${accent}1a`,

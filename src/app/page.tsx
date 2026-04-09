@@ -21,7 +21,7 @@ export default function Home() {
       <BurnComponent />
       <PackStats />
       <AllianceComponent />
-      <RoadmapSection />
+      {/* <RoadmapSection /> */}
       <FinalCTA />
       <BeastFooter />
     </main>

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import Image from "next/image";
 
 export default function BeastNavbar() {
   const navRef = useRef<HTMLElement>(null);
@@ -13,7 +14,7 @@ export default function BeastNavbar() {
     gsap.fromTo(
       navRef.current,
       { y: -80, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, ease: "power3.out", delay: 0.2 }
+      { y: 0, opacity: 1, duration: 0.8, ease: "power3.out", delay: 0.2 },
     );
 
     const handleScroll = () => {
@@ -52,18 +53,27 @@ export default function BeastNavbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
-            <div ref={logoRef} className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+            <div
+              ref={logoRef}
+              className="flex items-center gap-3 cursor-pointer"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
               <div className="relative">
-                <div className="w-10 h-10 bg-scarlet clip-hex flex items-center justify-center font-beast text-bone text-sm">
-                  🐾
+                <div className="w-10 h-10 bg-scarlet clip-hex overflow-hidden rounded-full">
+                  <Image
+                    src="/mbp-logo.jpg"
+                    alt="ManBearPig logo"
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover"
+                    priority
+                  />
                 </div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-ember rounded-full animate-pulse" />
               </div>
               <div>
                 <span className="font-beast text-xl text-bone tracking-wider">
                   MAN<span className="text-scarlet">BEAR</span>PIG
                 </span>
-                <div className="text-xs text-moss font-display tracking-widest">$MBP · SUI ECOSYSTEM</div>
               </div>
             </div>
 
@@ -98,9 +108,15 @@ export default function BeastNavbar() {
                 onClick={() => setMenuOpen(!menuOpen)}
                 aria-label="Toggle menu"
               >
-                <span className={`block w-6 h-0.5 bg-bone transition-transform duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
-                <span className={`block w-6 h-0.5 bg-bone transition-opacity duration-300 ${menuOpen ? "opacity-0" : ""}`} />
-                <span className={`block w-6 h-0.5 bg-bone transition-transform duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+                <span
+                  className={`block w-6 h-0.5 bg-bone transition-transform duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`}
+                />
+                <span
+                  className={`block w-6 h-0.5 bg-bone transition-opacity duration-300 ${menuOpen ? "opacity-0" : ""}`}
+                />
+                <span
+                  className={`block w-6 h-0.5 bg-bone transition-transform duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`}
+                />
               </button>
             </div>
           </div>

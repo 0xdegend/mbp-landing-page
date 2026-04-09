@@ -88,11 +88,9 @@ export default function HeroRightPanel({
                 className="font-bold text-gray-900 leading-tight font-display tracking-wide uppercase"
                 style={{ fontSize: 7 }}
               >
-                $MBP
-                <br />
                 BEWARE!!!
                 <br />
-                BEAST
+                $MBP is here!!!
               </p>
             </div>
           </div>

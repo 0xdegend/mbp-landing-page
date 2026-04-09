@@ -292,7 +292,10 @@ function CACard() {
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
-            <div ref={iconRef} className="w-9 h-9 rounded-md bg-scarlet/10 flex items-center justify-center">
+            <div
+              ref={iconRef}
+              className="w-9 h-9 rounded-md bg-scarlet/10 flex items-center justify-center"
+            >
               <ClawIcon color="#c0392b" />
             </div>
             <div>
@@ -448,7 +451,14 @@ function DexScreenerCard() {
     tl.fromTo(
       cardRef.current,
       { opacity: 0, y: 50, scale: 0.96 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.8, delay: 0.12, ease: "power3.out" },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.8,
+        delay: 0.12,
+        ease: "power3.out",
+      },
     );
 
     /* Heartbeat SVG — pulse up and down */
@@ -510,7 +520,10 @@ function DexScreenerCard() {
 
           {/* Header */}
           <div className="flex items-center gap-3 mb-5">
-            <div ref={iconRef} className="w-9 h-9 rounded-md bg-ember/10 flex items-center justify-center">
+            <div
+              ref={iconRef}
+              className="w-9 h-9 rounded-md bg-ember/10 flex items-center justify-center"
+            >
               <svg
                 width="18"
                 height="18"
@@ -651,7 +664,14 @@ function SuiScanCard() {
     tl.fromTo(
       cardRef.current,
       { opacity: 0, y: 50, scale: 0.96 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.8, delay: 0.24, ease: "power3.out" },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.8,
+        delay: 0.24,
+        ease: "power3.out",
+      },
     );
 
     /* Grid SVG — staggered block pulse like a blockchain */
@@ -709,7 +729,10 @@ function SuiScanCard() {
 
           {/* Header */}
           <div className="flex items-center gap-3 mb-5">
-            <div ref={iconRef} className="w-9 h-9 rounded-md bg-sky-ice/10 flex items-center justify-center">
+            <div
+              ref={iconRef}
+              className="w-9 h-9 rounded-md bg-sky-ice/10 flex items-center justify-center"
+            >
               <svg
                 width="18"
                 height="18"
@@ -824,6 +847,7 @@ type ListingCardProps = {
   title: string;
   description: string;
   badge: string;
+  ctaLabel: string;
   accent: string;
   icon: React.ReactNode;
 };
@@ -834,6 +858,7 @@ function ListingCard({
   title,
   description,
   badge,
+  ctaLabel,
   accent,
   icon,
 }: ListingCardProps) {
@@ -1065,7 +1090,7 @@ function ListingCard({
                 className="font-display text-[10px] tracking-wider font-semibold"
                 style={{ color: accent }}
               >
-                View listing
+                {ctaLabel}
               </span>
             </div>
             <div
@@ -1184,7 +1209,7 @@ export default function Ecosystem() {
           <div className="flex items-center gap-3 justify-center mb-6">
             <div className="h-px flex-1 max-w-[70px] bg-gradient-to-r from-transparent to-ember/40" />
             <span className="font-display text-[10px] tracking-[0.35em] uppercase text-ember/70">
-              Listings & Pools
+              Listings & Staking Pools
             </span>
             <div className="h-px flex-1 max-w-[70px] bg-gradient-to-l from-transparent to-ember/40" />
           </div>
@@ -1196,6 +1221,7 @@ export default function Ecosystem() {
               title="NOODLES"
               description="$MBP is listed on Noodles for fast discovery and trading."
               badge="Live"
+              ctaLabel="Visit"
               accent="#e84d0e"
               icon={
                 <svg
@@ -1219,8 +1245,9 @@ export default function Ecosystem() {
               href={COINMUM_URL}
               label="Market Page"
               title="COINMUM"
-              description="Catch the MBP market page on Coinmum for community visibility."
+              description="Vote for $MBP on Coinmum to boost visibility."
               badge="Track"
+              ctaLabel="Go Vote"
               accent="#c0392b"
               icon={
                 <svg
@@ -1244,8 +1271,9 @@ export default function Ecosystem() {
               href={AFTERMATH_URL}
               label="Staking Pool"
               title="AFTERMATH"
-              description="Stake MBP in the Aftermath farm and keep the beast earning."
+              description="Stake MBP in the Aftermath farm and keep earning more beast."
               badge="Farm"
+              ctaLabel="Go Stake"
               accent="#7ec8e3"
               icon={
                 <svg

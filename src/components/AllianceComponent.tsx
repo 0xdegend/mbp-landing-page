@@ -198,8 +198,8 @@ export default function AllianceComponent() {
         >
           <div className="gallery-reveal mb-4 inline-flex items-center gap-2 rounded-full border border-moss/15 bg-moss/[0.06] px-3 py-1.5 pointer-events-auto w-fit">
             <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-moss opacity-50" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-moss" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1a9cd2] opacity-50" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#1a9cd2]" />
             </span>
             <span className="font-display text-[9px] tracking-[0.35em] uppercase text-bone/60">
               PandaSui Projects
@@ -211,10 +211,10 @@ export default function AllianceComponent() {
             <br />
             <span
               style={{
-                WebkitTextStroke: "2px #4a7c59",
+                WebkitTextStroke: "2px #1a9cd2",
                 color: "transparent",
                 textShadow:
-                  "0 0 30px rgba(74,124,89,0.15), 0 0 60px rgba(74,124,89,0.06)",
+                  "0 0 30px rgba(26,156,210,0.22), 0 0 60px rgba(26,156,210,0.1)",
               }}
             >
               ALLIANCE

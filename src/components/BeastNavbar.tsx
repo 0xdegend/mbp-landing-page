@@ -46,7 +46,7 @@ export default function BeastNavbar() {
         ref={navRef}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-forest-black/95 backdrop-blur-md border-b border-forest-green/30 shadow-lg shadow-black/50"
+            ? "bg-forest-black/95 backdrop-blur-md shadow-sm shadow-black/50"
             : "bg-transparent"
         }`}
       >
@@ -94,7 +94,7 @@ export default function BeastNavbar() {
             {/* CTA + Mobile Menu */}
             <div className="flex  items-center gap-3">
               <a
-                href="https://sui.io"
+                href="https://app.cetus.zone/swap/0x2::sui::SUI/0x4d68a38f0c7abcea02106da3bab76f5e6b0b242c100746eb1ef9692cd1129d25::mbp::MBP"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="!hidden lg:!inline-flex btn-beast btn-beast-primary text-sm"
@@ -139,7 +139,7 @@ export default function BeastNavbar() {
               </button>
             ))}
             <a
-              href="https://sui.io"
+              href="https://app.cetus.zone/swap/0x2::sui::SUI/0x4d68a38f0c7abcea02106da3bab76f5e6b0b242c100746eb1ef9692cd1129d25::mbp::MBP"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-beast btn-beast-primary text-sm text-center"

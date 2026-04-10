@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
+import Image from "next/image";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -60,6 +61,7 @@ export default function FinalCTA() {
   const copyRippleRef = useRef<HTMLSpanElement>(null);
   const addressCardRef = useRef<HTMLDivElement>(null);
   const copyResetRef = useRef<number | null>(null);
+  const standingImageRef = useRef<HTMLDivElement>(null);
 
   const [summoned, setSummoned] = useState(false);
   const [isHolding, setIsHolding] = useState(false);
@@ -146,23 +148,10 @@ export default function FinalCTA() {
         },
       );
 
-      /* ── Video playback — loops continuously, never pauses ── */
-      const video = videoRef.current;
-      if (video) {
-        const tryPlay = () => {
-          video.muted = true;
-          const p = video.play();
-          if (p && typeof p.catch === "function") p.catch(() => {});
-        };
-
-        // Initial attempt — browsers allow muted autoplay
-        tryPlay();
-
-        // Retry once the video is ready (covers the case where the initial
-        // play() was rejected because metadata hadn't loaded yet)
-        video.addEventListener("loadeddata", tryPlay, { once: true });
-        video.addEventListener("canplay", tryPlay, { once: true });
-      }
+      /* ── Video stays dormant until the summon ritual fires ── */
+      // The video is preloaded but paused. The standing-beast image is
+      // layered over it. When triggerSummon runs, we crossfade the image
+      // out and call video.play() — see triggerSummon below.
 
       /* Refresh ScrollTrigger once layout fully settles */
       if (document.readyState === "complete") {
@@ -1017,8 +1006,26 @@ export default function FinalCTA() {
             <button
               ref={copyBtnRef}
               onClick={handleCopy}
+              onMouseMove={(e) => {
+                // Prevent the parent card's magnetic tilt from firing while
+                // the cursor is over the button — otherwise the card rotates
+                // the button in 3D, which jitters the hover state.
+                e.stopPropagation();
+              }}
+              onMouseEnter={() => {
+                // Snap the card back to neutral so the button sits flat
+                if (addressCardRef.current) {
+                  gsap.to(addressCardRef.current, {
+                    rotateX: 0,
+                    rotateY: 0,
+                    duration: 0.35,
+                    ease: "power2.out",
+                    overwrite: "auto",
+                  });
+                }
+              }}
               className="group relative overflow-visible rounded-sm border border-scarlet/30 bg-scarlet/[0.08] px-4 py-2 hover:border-scarlet/60 hover:bg-scarlet/[0.15] flex-shrink-0"
-              style={{ perspective: 400 }}
+              style={{ perspective: 400, transform: "translateZ(0.1px)" }}
             >
               {/* Ripple pulse */}
               <span

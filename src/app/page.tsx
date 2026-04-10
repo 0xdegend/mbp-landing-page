@@ -3,7 +3,7 @@ import HeroPage from "@/components/HeroPage";
 import BeastMarquee from "@/components/BeastMarquee";
 import Ecosystem from "@/components/Ecosystem";
 import BurnComponent from "@/components/BurnComponent";
-import LoreSection from "@/components/LoreSection";
+import StorySection from "@/components/StorySection";
 import Tokenomics from "@/components/Tokenomics";
 import AllianceComponent from "@/components/AllianceComponent";
 import RoadmapSection from "@/components/RoadmapSection";
@@ -16,7 +16,7 @@ export default function Home() {
       <BeastNavbar />
       <HeroPage />
       <BeastMarquee />
-      <LoreSection />
+      <StorySection />
       <Ecosystem />
       <BurnComponent />
       <Tokenomics />

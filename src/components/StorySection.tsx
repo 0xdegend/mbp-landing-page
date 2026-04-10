@@ -34,7 +34,10 @@ export default function StorySection() {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const progressFillRef = useRef<HTMLDivElement>(null);
   const frameCornersRef = useRef<HTMLDivElement>(null);
+  const soundEnabledRef = useRef(false);
   const [activeChapter, setActiveChapter] = useState(0);
+  const [isInView, setIsInView] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(false);
 
   useGSAP(
     () => {
@@ -43,15 +46,14 @@ export default function StorySection() {
 
       // ── tryPlay: attempt with sound, fall back to muted→unmuted ──
       const tryPlay = () => {
-        video.play().catch(() => {
-          video.muted = true;
-          video
-            .play()
-            .then(() => {
-              video.muted = false;
-            })
-            .catch(() => {});
-        });
+        if (soundEnabledRef.current) {
+          video.muted = false;
+          video.play().catch(() => {});
+          return;
+        }
+
+        video.muted = true;
+        video.play().catch(() => {});
       };
 
       // ── Refresh ScrollTrigger once the page is fully loaded ──
@@ -198,17 +200,21 @@ export default function StorySection() {
         start: "top 80px",
         end: "+=2400",
         onEnter: () => {
+          setIsInView(true);
           video.currentTime = 0;
           tryPlay();
         },
         onEnterBack: () => {
+          setIsInView(true);
           tryPlay();
         },
         onLeave: () => {
+          setIsInView(false);
           video.pause();
           video.currentTime = 0;
         },
         onLeaveBack: () => {
+          setIsInView(false);
           video.pause();
           video.currentTime = 0;
         },
@@ -217,6 +223,27 @@ export default function StorySection() {
     // scope: ties the gsap context to this element — cleanup is automatic
     { scope: sectionRef },
   );
+
+  const handleEnableSound = async () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    try {
+      const nextSoundState = !soundEnabledRef.current;
+      soundEnabledRef.current = nextSoundState;
+      setSoundEnabled(nextSoundState);
+
+      if (nextSoundState) {
+        video.muted = false;
+        video.volume = 1;
+        await video.play();
+      } else {
+        video.muted = true;
+      }
+    } catch {
+      video.muted = true;
+    }
+  };
 
   return (
     <section
@@ -355,6 +382,20 @@ export default function StorySection() {
                 >
                   <source src="/videos/mbp-video-1.mp4" type="video/mp4" />
                 </video>
+
+                {isInView && (
+                  <button
+                    type="button"
+                    onClick={handleEnableSound}
+                    className={`absolute top-4 right-4 z-20 rounded-full border px-4 py-2 font-display text-[9px] tracking-[0.3em] uppercase backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 ${
+                      soundEnabled
+                        ? "border-ember/35 bg-[#0a0d08]/92 text-ember hover:border-ember/55 hover:bg-[#0a0d08]/100"
+                        : "border-scarlet/25 bg-[#0a0d08]/80 text-bone/90 hover:border-scarlet/45 hover:bg-[#0a0d08]/95"
+                    }`}
+                  >
+                    {soundEnabled ? "Silence Beast" : "Unleash Sound"}
+                  </button>
+                )}
 
                 {/* Edge gradient vignette */}
                 <div

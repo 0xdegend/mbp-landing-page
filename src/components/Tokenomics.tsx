@@ -65,7 +65,7 @@ const KEY_STATS: {
 const TRUST = [
   { label: "LP Locked", sub: "Liquidity secured" },
   { label: "No Mint", sub: "Fixed supply forever" },
-  { label: "Renounced", sub: "Ownership removed" },
+  { label: "No Team Allocation", sub: "All fair launch" },
   { label: "Zero Tax", sub: "0% buy and sell" },
 ];
 

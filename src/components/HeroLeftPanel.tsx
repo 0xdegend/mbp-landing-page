@@ -1,11 +1,302 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
 import type { HeroLeftPanelRefs } from "./heroTypes";
 
 type HeroLeftPanelProps = HeroLeftPanelRefs & {
   scrollToSection: (id: string) => void;
   socials: { label: string; href: string }[];
 };
+
+/* ═══════════════════════════════════════════════════════
+   Claw Scratches — multi-layer gouged surface effect
+   4 layers per scratch: deep glow → shadow → mark → highlight
+   + ember sparks + debris marks + hover intensification
+   ═══════════════════════════════════════════════════════ */
+const CLAW_PATHS = [
+  "M8,2 C22,14 45,34 82,58",
+  "M17,0 C31,12 53,31 92,55",
+  "M26,4 C38,15 58,33 100,56",
+];
+
+const DEBRIS = [
+  { x1: 32, y1: 18, x2: 38, y2: 23, o: 0.25 },
+  { x1: 55, y1: 32, x2: 60, y2: 37, o: 0.2 },
+  { x1: 22, y1: 10, x2: 27, y2: 15, o: 0.15 },
+  { x1: 70, y1: 42, x2: 74, y2: 46, o: 0.18 },
+  { x1: 45, y1: 26, x2: 50, y2: 30, o: 0.12 },
+];
+
+const SPARKS = [
+  { cx: 80, cy: 56, r: 1.2 },
+  { cx: 90, cy: 53, r: 1 },
+  { cx: 98, cy: 54, r: 0.8 },
+  { cx: 74, cy: 50, r: 0.6 },
+  { cx: 86, cy: 48, r: 0.5 },
+  { cx: 95, cy: 50, r: 0.7 },
+  { cx: 68, cy: 44, r: 0.4 },
+];
+
+function ClawScratches() {
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const svg = svgRef.current;
+    const btn = svg.closest(".btn-beast-primary");
+
+    const marks = svg.querySelectorAll(".claw-mark");
+    const depths = svg.querySelectorAll(".claw-depth");
+    const embers = svg.querySelectorAll(".claw-ember");
+    const highlights = svg.querySelectorAll(".claw-hi");
+    const sparks = svg.querySelectorAll(".claw-spark");
+    const debris = svg.querySelectorAll(".claw-debris");
+
+    // Prepare stroke draw-on for all paths
+    const allStroked = [...marks, ...depths, ...embers, ...highlights, ...debris];
+    allStroked.forEach((el) => {
+      const len = (el as SVGGeometryElement).getTotalLength?.() || 80;
+      (el as SVGElement).style.strokeDasharray = `${len}`;
+      (el as SVGElement).style.strokeDashoffset = `${len}`;
+    });
+
+    gsap.set(sparks, { opacity: 0, y: 0 });
+
+    // ── Entrance: scratches rip across ──
+    const enterTl = gsap.timeline({ delay: 2.6 });
+    enterTl
+      .to(depths, {
+        strokeDashoffset: 0,
+        duration: 0.18,
+        stagger: 0.04,
+        ease: "power4.out",
+      })
+      .to(
+        marks,
+        {
+          strokeDashoffset: 0,
+          duration: 0.22,
+          stagger: 0.04,
+          ease: "power3.out",
+        },
+        "-=0.14",
+      )
+      .to(
+        embers,
+        {
+          strokeDashoffset: 0,
+          duration: 0.35,
+          stagger: 0.05,
+          ease: "power2.out",
+        },
+        "-=0.18",
+      )
+      .to(
+        highlights,
+        {
+          strokeDashoffset: 0,
+          duration: 0.3,
+          stagger: 0.05,
+          ease: "power2.out",
+        },
+        "-=0.25",
+      )
+      .to(
+        debris,
+        {
+          strokeDashoffset: 0,
+          duration: 0.15,
+          stagger: 0.03,
+          ease: "power3.out",
+        },
+        "-=0.2",
+      );
+
+    // ── Idle: ember glow breathes ──
+    const breathAnim = gsap.to(embers, {
+      opacity: 0.15,
+      duration: 2.5,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut",
+      stagger: 0.2,
+      delay: 3.5,
+    });
+
+    const hiBreathe = gsap.to(highlights, {
+      opacity: 0.1,
+      duration: 3,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut",
+      stagger: 0.25,
+      delay: 3.8,
+    });
+
+    // ── Idle sparks: subtle drift upward ──
+    const sparkTls: gsap.core.Timeline[] = [];
+    sparks.forEach((spark, i) => {
+      const tl = gsap.timeline({
+        repeat: -1,
+        delay: 3.8 + i * 0.35,
+        repeatDelay: 0.8 + Math.random() * 1.5,
+      });
+      const rndX = -3 + Math.random() * 6;
+      const rndY = -8 - Math.random() * 8;
+      tl.set(spark, { opacity: 0, y: 0, x: 0 })
+        .to(spark, {
+          opacity: 0.5 + Math.random() * 0.3,
+          y: rndY * 0.3,
+          x: rndX * 0.3,
+          duration: 0.25,
+          ease: "power1.out",
+        })
+        .to(spark, {
+          opacity: 0,
+          y: rndY,
+          x: rndX,
+          duration: 0.8 + Math.random() * 0.6,
+          ease: "power1.out",
+        });
+      sparkTls.push(tl);
+    });
+
+    // ── Hover: scratches glow hotter ──
+    const onEnter = () => {
+      breathAnim.pause();
+      hiBreathe.pause();
+      gsap.to(embers, { opacity: 0.85, duration: 0.3, overwrite: "auto" });
+      gsap.to(highlights, { opacity: 0.7, duration: 0.3, overwrite: "auto" });
+      gsap.to(marks, { opacity: 1, duration: 0.25, overwrite: "auto" });
+    };
+    const onLeave = () => {
+      gsap.to(embers, {
+        opacity: 0.5,
+        duration: 0.5,
+        overwrite: "auto",
+        onComplete: () => { breathAnim.restart(); },
+      });
+      gsap.to(highlights, {
+        opacity: 0.35,
+        duration: 0.5,
+        overwrite: "auto",
+        onComplete: () => { hiBreathe.restart(); },
+      });
+      gsap.to(marks, { opacity: 0.7, duration: 0.5, overwrite: "auto" });
+    };
+
+    btn?.addEventListener("mouseenter", onEnter);
+    btn?.addEventListener("mouseleave", onLeave);
+
+    return () => {
+      btn?.removeEventListener("mouseenter", onEnter);
+      btn?.removeEventListener("mouseleave", onLeave);
+      enterTl.kill();
+      breathAnim.kill();
+      hiBreathe.kill();
+      sparkTls.forEach((tl) => tl.kill());
+    };
+  }, []);
+
+  return (
+    <svg
+      ref={svgRef}
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ zIndex: 2 }}
+      preserveAspectRatio="none"
+      viewBox="0 0 200 60"
+    >
+      <defs>
+        <filter id="claw-ember-glow">
+          <feGaussianBlur stdDeviation="2.5" result="b" />
+          <feMerge>
+            <feMergeNode in="b" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="claw-deep-glow">
+          <feGaussianBlur stdDeviation="4.5" result="b" />
+          <feMerge>
+            <feMergeNode in="b" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      {/* ── Multi-layer claw marks ── */}
+      {CLAW_PATHS.map((d, i) => (
+        <g key={i}>
+          {/* Layer 1 — Deep ember glow (fire beneath torn surface) */}
+          <path
+            className="claw-ember"
+            d={d}
+            stroke={`rgba(232,77,14,${0.35 - i * 0.05})`}
+            strokeWidth={5.5 - i * 0.8}
+            strokeLinecap="round"
+            fill="none"
+            filter="url(#claw-deep-glow)"
+          />
+          {/* Layer 2 — Shadow gouge (dark torn edge) */}
+          <path
+            className="claw-depth"
+            d={d}
+            stroke={`rgba(10,3,2,${0.75 - i * 0.1})`}
+            strokeWidth={3.5 - i * 0.5}
+            strokeLinecap="round"
+            fill="none"
+          />
+          {/* Layer 3 — Visible scratch mark */}
+          <path
+            className="claw-mark"
+            d={d}
+            stroke={`rgba(139,26,26,${0.7 - i * 0.1})`}
+            strokeWidth={2 - i * 0.3}
+            strokeLinecap="round"
+            fill="none"
+          />
+          {/* Layer 4 — Hot inner highlight (brightest core) */}
+          <path
+            className="claw-hi"
+            d={d}
+            stroke={`rgba(232,77,14,${0.5 - i * 0.1})`}
+            strokeWidth={0.7}
+            strokeLinecap="round"
+            fill="none"
+            filter="url(#claw-ember-glow)"
+          />
+        </g>
+      ))}
+
+      {/* ── Debris marks (small chips from the strike) ── */}
+      {DEBRIS.map((db, i) => (
+        <line
+          key={i}
+          className="claw-debris"
+          x1={db.x1}
+          y1={db.y1}
+          x2={db.x2}
+          y2={db.y2}
+          stroke={`rgba(139,26,26,${db.o})`}
+          strokeWidth="0.4"
+          strokeLinecap="round"
+        />
+      ))}
+
+      {/* ── Ember sparks (drift upward from scratch exits) ── */}
+      {SPARKS.map((sp, i) => (
+        <circle
+          key={i}
+          className="claw-spark"
+          cx={sp.cx}
+          cy={sp.cy}
+          r={sp.r}
+          fill="rgba(232,77,14,0.8)"
+        />
+      ))}
+    </svg>
+  );
+}
 
 export default function HeroLeftPanel({
   badgeRef,
@@ -106,6 +397,7 @@ export default function HeroLeftPanel({
           className="btn-beast btn-beast-primary"
           onClick={() => scrollToSection("#summon")}
         >
+          <ClawScratches />
           <span className="btn-edge-bar" />
           <canvas ref={primaryCanvasRef} className="btn-ember-canvas" />
           <span className="btn-paw">

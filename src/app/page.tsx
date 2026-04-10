@@ -4,7 +4,7 @@ import BeastMarquee from "@/components/BeastMarquee";
 import Ecosystem from "@/components/Ecosystem";
 import BurnComponent from "@/components/BurnComponent";
 import LoreSection from "@/components/LoreSection";
-import PackStats from "@/components/PackStats";
+import Tokenomics from "@/components/Tokenomics";
 import AllianceComponent from "@/components/AllianceComponent";
 import RoadmapSection from "@/components/RoadmapSection";
 import FinalCTA from "@/components/FinalCTA";
@@ -19,7 +19,7 @@ export default function Home() {
       <LoreSection />
       <Ecosystem />
       <BurnComponent />
-      <PackStats />
+      <Tokenomics />
       <AllianceComponent />
       {/* <RoadmapSection /> */}
       <FinalCTA />

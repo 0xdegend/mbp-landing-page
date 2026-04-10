@@ -4,6 +4,7 @@ import type { HeroLeftPanelRefs } from "./heroTypes";
 
 type HeroLeftPanelProps = HeroLeftPanelRefs & {
   scrollToSection: (id: string) => void;
+  socials: { label: string; href: string }[];
 };
 
 export default function HeroLeftPanel({
@@ -18,6 +19,7 @@ export default function HeroLeftPanel({
   primaryCanvasRef,
   outlineBtnRef,
   scrollToSection,
+  socials,
 }: HeroLeftPanelProps) {
   return (
     <div className="flex flex-col justify-center order-2 lg:order-1">
@@ -129,13 +131,15 @@ export default function HeroLeftPanel({
 
       <div className="mt-8 flex items-center gap-4">
         <div className="flex gap-3">
-          {["𝕏 Twitter", "Telegram", "Discord"].map((s) => (
+          {socials.map((social) => (
             <a
-              key={s}
-              href="#"
+              key={social.label}
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-xs font-display tracking-wider uppercase text-ash/70 hover:text-scarlet transition-all duration-300 border-b border-ash/20 hover:border-scarlet pb-0.5 hover:pb-1"
             >
-              {s}
+              {social.label}
             </a>
           ))}
         </div>

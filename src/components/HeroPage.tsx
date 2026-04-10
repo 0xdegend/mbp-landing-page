@@ -35,6 +35,12 @@ export default function HeroPage() {
   const mistBRef = useRef<HTMLDivElement>(null);
   const beastBadgeRef = useRef<HTMLDivElement>(null);
 
+  const socials = [
+    { label: "𝕏 Twitter", href: "https://x.com/ManBearPig_25" },
+    { label: "Telegram", href: "https://t.me/manbearpig_25" },
+    { label: "Discord", href: "https://discord.gg/P6J99uXnnp" },
+  ];
+
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ delay: 0.2 });
@@ -745,6 +751,7 @@ export default function HeroPage() {
             primaryCanvasRef={primaryCanvasRef}
             outlineBtnRef={outlineBtnRef}
             scrollToSection={scrollToSection}
+            socials={socials}
           />
 
           <HeroRightPanel

@@ -196,7 +196,7 @@ export default function AllianceComponent() {
           className="absolute top-0 left-0 z-20 flex flex-col justify-center h-full pl-6 sm:pl-10 lg:pl-16 pointer-events-none"
           style={{ width: "clamp(260px, 22vw, 380px)" }}
         >
-          <div className="gallery-reveal mb-4 inline-flex items-center gap-2 rounded-full border border-moss/15 bg-moss/[0.06] px-3 py-1.5 pointer-events-auto w-fit">
+          <div className="gallery-reveal mb-4 inline-flex items-center gap-2 rounded-sm border border-moss/15 bg-moss/[0.06] px-3 py-1.5 pointer-events-auto w-fit">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1a9cd2] opacity-50" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#1a9cd2]" />

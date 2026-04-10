@@ -59,9 +59,9 @@ export default function BeastNavbar() {
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
               <div className="relative">
-                <div className="w-10 h-10 bg-scarlet clip-hex overflow-hidden rounded-full">
+                <div className="w-10 h-10 clip-hex overflow-hidden rounded-full">
                   <Image
-                    src="/mbp-logo.jpg"
+                    src="/favicon.png"
                     alt="ManBearPig logo"
                     width={40}
                     height={40}

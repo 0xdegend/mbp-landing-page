@@ -459,13 +459,13 @@ export default function BurnComponent() {
   }[] = [
     { label: "Total Burned", value: "183.12M", suffix: "", accent: "#e84d0e" },
     {
-      label: "Current Supply",
-      value: "816.88M",
+      label: "Circulating Supply",
+      value: "625.2M",
       suffix: "",
       accent: "#c0392b",
     },
     { label: "Burn Rate", value: "2.4%", suffix: "", accent: "#7ec8e3" },
-    { label: "Beast Hunger", value: "73%", suffix: "", accent: "#e8dcc8" },
+    { label: "Beast Hunger", value: "100%", suffix: "", accent: "#e8dcc8" },
   ];
 
   return (
@@ -527,7 +527,7 @@ export default function BurnComponent() {
                   Burn Progress
                 </span>
                 <span className="font-display text-[9px] tracking-[0.25em] uppercase text-scarlet/60">
-                  420M / 1B
+                  183.12M / 1B
                 </span>
               </div>
               <div className="relative h-1 overflow-hidden rounded-full bg-white/[0.04]">
@@ -663,11 +663,11 @@ export default function BurnComponent() {
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
-                  className="absolute inset-0 m-auto pointer-events-none"
+                  className="burn-orbit absolute inset-0 m-auto pointer-events-none"
                   style={{
                     width: 240,
                     height: 240,
-                    animation: `orbit ${7 + i * 3.5}s linear infinite`,
+                    animation: `burn-orbit ${7 + i * 3.5}s linear infinite`,
                     animationDelay: `${i * -2.5}s`,
                     zIndex: 3,
                   }}
@@ -701,7 +701,7 @@ export default function BurnComponent() {
                 <span className="font-display text-[7px] tracking-[0.3em] uppercase text-ash/25 block">
                   Alive
                 </span>
-                <span className="font-beast text-sm text-bone/60">816.88M</span>
+                <span className="font-beast text-sm text-bone/60">625.2M</span>
               </div>
             </div>
           </div>
@@ -765,17 +765,6 @@ export default function BurnComponent() {
           <div className="h-px flex-1 max-w-[80px] bg-gradient-to-l from-transparent to-scarlet/12" />
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes orbit {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
     </section>
   );
 }

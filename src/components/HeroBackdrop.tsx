@@ -1,8 +1,42 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import type { HeroBackdropRefs } from "./heroTypes";
 import FloatingParticleLayer from "./FloatingParticleLayer";
+
+function mulberry32(seed: number) {
+  let a = seed;
+  return function random() {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+type Star = {
+  width: number;
+  height: number;
+  top: string;
+  left: string;
+  background: string;
+  opacity: number;
+  animationDuration: string;
+  animationDelay: string;
+  transform: string;
+};
+
+type Firefly = {
+  top: string;
+  left: string;
+  animationDuration: string;
+  animationDelay: string;
+  background: string;
+  boxShadow: string;
+  animationName: string;
+};
 
 export default function HeroBackdrop({
   spotlightRef,
@@ -14,6 +48,43 @@ export default function HeroBackdrop({
   layer3Ref,
   warningRef,
 }: HeroBackdropRefs) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const stars = useMemo<Star[]>(() => {
+    const random = mulberry32(1337);
+
+    return Array.from({ length: 80 }, (_, i) => ({
+      width: random() * 2.5 + 0.5,
+      height: random() * 2.5 + 0.5,
+      top: `${random() * 45}%`,
+      left: `${random() * 100}%`,
+      background: i % 5 === 0 ? "#7ec8e3" : "white",
+      opacity: random() * 0.7 + 0.1,
+      animationDuration: `${2 + random() * 4}s`,
+      animationDelay: `${random() * 5}s`,
+      transform: `translateZ(${-100 - random() * 200}px)`,
+    }));
+  }, []);
+
+  const fireflies = useMemo<Firefly[]>(() => {
+    const random = mulberry32(4242);
+
+    return Array.from({ length: 12 }, (_, i) => ({
+      top: `${20 + random() * 60}%`,
+      left: `${random() * 100}%`,
+      animationDuration: `${6 + random() * 8}s`,
+      animationDelay: `${random() * 6}s`,
+      background: i % 3 === 0 ? "#ffaa00" : "#7ec8e3",
+      boxShadow: `0 0 ${8 + i * 2}px ${
+        i % 3 === 0 ? "rgba(255,170,0,0.6)" : "rgba(126,200,227,0.4)"
+      }`,
+      animationName: `firefly${i % 3}`,
+    }));
+  }, []);
+
   return (
     <>
       <div
@@ -78,23 +149,24 @@ export default function HeroBackdrop({
           className="absolute inset-0"
           style={{ zIndex: 1, transformStyle: "preserve-3d" }}
         >
-          {Array.from({ length: 80 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full star-twinkle"
-              style={{
-                width: Math.random() * 2.5 + 0.5,
-                height: Math.random() * 2.5 + 0.5,
-                top: `${Math.random() * 45}%`,
-                left: `${Math.random() * 100}%`,
-                background: i % 5 === 0 ? "#7ec8e3" : "white",
-                opacity: Math.random() * 0.7 + 0.1,
-                animationDuration: `${2 + Math.random() * 4}s`,
-                animationDelay: `${Math.random() * 5}s`,
-                transform: `translateZ(${-100 - Math.random() * 200}px)`,
-              }}
-            />
-          ))}
+          {mounted &&
+            stars.map((star, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full star-twinkle"
+                style={{
+                  width: star.width,
+                  height: star.height,
+                  top: star.top,
+                  left: star.left,
+                  background: star.background,
+                  opacity: star.opacity,
+                  animationDuration: star.animationDuration,
+                  animationDelay: star.animationDelay,
+                  transform: star.transform,
+                }}
+              />
+            ))}
         </div>
 
         <div
@@ -267,25 +339,24 @@ export default function HeroBackdrop({
       <FloatingParticleLayer count={10} type="dust" className="z-[5]" />
 
       <div className="absolute inset-0 z-[5] pointer-events-none">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full firefly-glow"
-            style={{
-              width: 4,
-              height: 4,
-              background: i % 3 === 0 ? "#ffaa00" : "#7ec8e3",
-              boxShadow: `0 0 ${8 + i * 2}px ${
-                i % 3 === 0 ? "rgba(255,170,0,0.6)" : "rgba(126,200,227,0.4)"
-              }`,
-              top: `${20 + Math.random() * 60}%`,
-              left: `${Math.random() * 100}%`,
-              animationDuration: `${6 + Math.random() * 8}s`,
-              animationDelay: `${Math.random() * 6}s`,
-              animationName: `firefly${i % 3}`,
-            }}
-          />
-        ))}
+        {mounted &&
+          fireflies.map((firefly, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full firefly-glow"
+              style={{
+                width: 4,
+                height: 4,
+                background: firefly.background,
+                boxShadow: firefly.boxShadow,
+                top: firefly.top,
+                left: firefly.left,
+                animationDuration: firefly.animationDuration,
+                animationDelay: firefly.animationDelay,
+                animationName: firefly.animationName,
+              }}
+            />
+          ))}
       </div>
 
       <div

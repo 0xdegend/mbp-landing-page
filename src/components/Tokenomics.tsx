@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import type { MouseEvent as ReactMouseEvent } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -9,17 +10,56 @@ gsap.registerPlugin(ScrollTrigger);
    Token distribution
    ═══════════════════════════════════════════════════════ */
 const SEGMENTS = [
-  { label: "Liquidity Pool", pct: 50, color: "#4a7c59", desc: "Locked & secured" },
-  { label: "Burned", pct: 18.31, color: "#c0392b", desc: "Permanently removed" },
-  { label: "Community", pct: 15, color: "#7ec8e3", desc: "Airdrops & rewards" },
-  { label: "Team", pct: 10, color: "#e84d0e", desc: "Vested 12 months" },
-  { label: "Marketing", pct: 6.69, color: "#e8dcc8", desc: "Growth & partnerships" },
+  {
+    label: "Liquidity Pool",
+    pct: 13.75,
+    color: "#4a7c59",
+    desc: "Locked & secured",
+  },
+  {
+    label: "Burned",
+    pct: 18.31,
+    color: "#c0392b",
+    desc: "Permanently removed",
+  },
+  {
+    label: "Circulating Supply",
+    pct: 62.52,
+    color: "#7ec8e3",
+    desc: "Current Circulating Supply",
+  },
+  {
+    label: "Staked",
+    pct: 5.42,
+    color: "#e84d0e",
+    desc: "Staked by the community",
+  },
 ];
 
-const KEY_STATS = [
-  { label: "Total Supply", value: "1,000,000,000", sub: "$MBP tokens" },
-  { label: "Circulating", value: "816,880,000", sub: "Available supply" },
-  { label: "Buy / Sell Tax", value: "0% / 0%", sub: "Zero-tax trading" },
+const KEY_STATS: {
+  label: string;
+  value: string;
+  sub: string;
+  target: number | null;
+}[] = [
+  {
+    label: "Total Supply",
+    value: "1,000,000,000",
+    sub: "$MBP tokens",
+    target: 1_000_000_000,
+  },
+  {
+    label: "Circulating",
+    value: "816,880,000",
+    sub: "Available supply",
+    target: 816_880_000,
+  },
+  {
+    label: "Buy / Sell Tax",
+    value: "0% / 0%",
+    sub: "Zero-tax trading",
+    target: null,
+  },
 ];
 
 const TRUST = [
@@ -44,6 +84,31 @@ const SEG_GEO = SEGMENTS.map((seg, i) => {
     segLen: (seg.pct / 100) * CIRC - GAP,
   };
 });
+
+/* ── Magnetic tilt helpers (reused for stat + trust cards) ── */
+function handleTilt(e: ReactMouseEvent<HTMLDivElement>) {
+  const el = e.currentTarget;
+  const rect = el.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width - 0.5;
+  const y = (e.clientY - rect.top) / rect.height - 0.5;
+  gsap.to(el, {
+    rotateY: x * 6,
+    rotateX: y * -6,
+    duration: 0.35,
+    ease: "power2.out",
+    overwrite: "auto",
+  });
+}
+
+function handleTiltLeave(e: ReactMouseEvent<HTMLDivElement>) {
+  gsap.to(e.currentTarget, {
+    rotateY: 0,
+    rotateX: 0,
+    duration: 0.7,
+    ease: "elastic.out(1, 0.4)",
+    overwrite: "auto",
+  });
+}
 
 /* ── Trust badge SVG icons ── */
 function TrustIcon({ index }: { index: number }) {
@@ -90,8 +155,18 @@ function TrustIcon({ index }: { index: number }) {
    ═══════════════════════════════════════════════════════ */
 export default function Tokenomics() {
   const sectionRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const centerDefaultRef = useRef<HTMLDivElement>(null);
+  const centerHoverRef = useRef<HTMLDivElement>(null);
+  const centerHoverValRef = useRef<HTMLSpanElement>(null);
+  const centerHoverLabelRef = useRef<HTMLSpanElement>(null);
+  const tickGroupRef = useRef<SVGGElement>(null);
+  const shimmerRef = useRef<SVGCircleElement>(null);
+  const pulseRef = useRef<SVGCircleElement>(null);
+  const pulseOuterRef = useRef<SVGCircleElement>(null);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
 
+  /* ── Entrance + idle animations ── */
   useEffect(() => {
     if (!sectionRef.current) return;
     const section = sectionRef.current;
@@ -99,14 +174,70 @@ export default function Tokenomics() {
     const ctx = gsap.context(() => {
       const segs = section.querySelectorAll<SVGCircleElement>(".ring-seg");
       const bars = section.querySelectorAll<HTMLDivElement>(".tok-bar");
+      const chars = titleRef.current?.querySelectorAll(".tok-char");
+      const statValues =
+        section.querySelectorAll<HTMLDivElement>(".tok-stat-value");
+      const trustStrokes = section.querySelectorAll<SVGGeometryElement>(
+        ".tok-trust svg path, .tok-trust svg line, .tok-trust svg rect, .tok-trust svg circle, .tok-trust svg polyline",
+      );
+      const particles =
+        section.querySelectorAll<HTMLDivElement>(".tok-particle");
 
-      /* Initial states */
+      /* ── Initial states ── */
       segs.forEach((seg, i) => {
         gsap.set(seg, { strokeDashoffset: SEG_GEO[i].segLen });
       });
       gsap.set(bars, { width: "0%" });
 
-      /* Master timeline */
+      // Prep trust icon strokes for draw-on
+      trustStrokes.forEach((el) => {
+        try {
+          const len = el.getTotalLength?.() || 50;
+          el.style.strokeDasharray = `${len}`;
+          el.style.strokeDashoffset = `${len}`;
+        } catch {
+          /* noop */
+        }
+      });
+
+      /* ── Constellation particles (bg ambiance) ── */
+      particles.forEach((p, i) => {
+        const startX = 8 + Math.random() * 84;
+        const startY = 8 + Math.random() * 84;
+        gsap.set(p, {
+          left: `${startX}%`,
+          top: `${startY}%`,
+          opacity: 0,
+        });
+        gsap.to(p, {
+          opacity: 0.15 + Math.random() * 0.25,
+          duration: 2 + Math.random() * 2,
+          delay: 0.5 + i * 0.2,
+          ease: "sine.inOut",
+        });
+        gsap.to(p, {
+          x: (Math.random() - 0.5) * 140,
+          y: (Math.random() - 0.5) * 140,
+          duration: 12 + Math.random() * 10,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          delay: i * 0.4,
+        });
+      });
+
+      /* ── Slow idle rotation on outer tick marks ── */
+      if (tickGroupRef.current) {
+        gsap.to(tickGroupRef.current, {
+          rotation: 360,
+          transformOrigin: "150px 150px",
+          duration: 180,
+          repeat: -1,
+          ease: "none",
+        });
+      }
+
+      /* ═══ Master scroll-triggered timeline ═══ */
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
@@ -115,7 +246,7 @@ export default function Tokenomics() {
         },
       });
 
-      /* Header */
+      /* Header accent + paragraph */
       tl.fromTo(
         ".tok-reveal",
         { opacity: 0, y: 30 },
@@ -129,6 +260,24 @@ export default function Tokenomics() {
         },
       );
 
+      /* Title characters — 3D tumble in */
+      if (chars && chars.length) {
+        tl.fromTo(
+          chars,
+          { opacity: 0, y: 80, rotateX: -90 },
+          {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            duration: 0.8,
+            stagger: 0.045,
+            ease: "back.out(1.7)",
+            immediateRender: false,
+          },
+          "-=0.4",
+        );
+      }
+
       /* Stats slide in from left */
       tl.fromTo(
         ".tok-stat",
@@ -141,10 +290,29 @@ export default function Tokenomics() {
           ease: "power3.out",
           immediateRender: false,
         },
-        "-=0.2",
+        "-=0.3",
       );
 
-      /* Ring segments draw on */
+      /* Counter roll-up on numeric stats — sync with stats slide */
+      statValues.forEach((el) => {
+        const target = parseFloat(el.dataset.target || "");
+        if (!target || isNaN(target)) return;
+        const obj = { val: 0 };
+        tl.to(
+          obj,
+          {
+            val: target,
+            duration: 1.6,
+            ease: "power2.out",
+            onUpdate: () => {
+              el.textContent = Math.floor(obj.val).toLocaleString();
+            },
+          },
+          "-=0.6",
+        );
+      });
+
+      /* Ring segments draw on sequentially */
       segs.forEach((seg, i) => {
         tl.to(
           seg,
@@ -153,11 +321,32 @@ export default function Tokenomics() {
             duration: 0.4 + SEG_GEO[i].pct * 0.008,
             ease: "power2.out",
           },
-          i === 0 ? "<" : "<+=0.08",
+          i === 0 ? "<+=0.1" : "<+=0.08",
         );
       });
 
-      /* Center label */
+      /* Shimmer sweep around ring after segments are drawn */
+      if (shimmerRef.current) {
+        const shimmer = shimmerRef.current;
+        tl.set(shimmer, { strokeDashoffset: 0, opacity: 0 }, ">-0.1");
+        tl.to(
+          shimmer,
+          { opacity: 0.55, duration: 0.15, ease: "power2.out" },
+          ">",
+        );
+        tl.to(
+          shimmer,
+          { strokeDashoffset: -CIRC, duration: 1.4, ease: "power2.inOut" },
+          "<",
+        );
+        tl.to(
+          shimmer,
+          { opacity: 0, duration: 0.3, ease: "power2.out" },
+          ">-0.3",
+        );
+      }
+
+      /* Center label — crack in */
       tl.fromTo(
         ".tok-center",
         { opacity: 0, scale: 0.85 },
@@ -168,10 +357,10 @@ export default function Tokenomics() {
           ease: "back.out(1.7)",
           immediateRender: false,
         },
-        "-=0.4",
+        "-=1.2",
       );
 
-      /* Tick marks */
+      /* Tick marks fade in */
       tl.fromTo(
         ".tok-tick",
         { opacity: 0 },
@@ -198,7 +387,7 @@ export default function Tokenomics() {
       bars.forEach((bar) => {
         tl.to(
           bar,
-          { width: bar.dataset.target, duration: 0.5, ease: "power2.out" },
+          { width: bar.dataset.target, duration: 0.55, ease: "power2.out" },
           "<+=0.04",
         );
       });
@@ -217,10 +406,110 @@ export default function Tokenomics() {
         },
         "-=0.2",
       );
+
+      /* Trust icon strokes draw on */
+      if (trustStrokes.length) {
+        tl.to(
+          trustStrokes,
+          {
+            strokeDashoffset: 0,
+            duration: 0.7,
+            stagger: 0.02,
+            ease: "power3.out",
+          },
+          "-=0.25",
+        );
+      }
     }, section);
 
     return () => ctx.revert();
   }, []);
+
+  /* ── Active segment swap: center text + pulse ring ── */
+  useEffect(() => {
+    if (!centerDefaultRef.current || !centerHoverRef.current) return;
+
+    if (activeIdx === null) {
+      gsap.to(centerDefaultRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.35,
+        ease: "power3.out",
+        overwrite: "auto",
+      });
+      gsap.to(centerHoverRef.current, {
+        opacity: 0,
+        y: -8,
+        duration: 0.35,
+        ease: "power3.out",
+        overwrite: "auto",
+      });
+      return;
+    }
+
+    const seg = SEGMENTS[activeIdx];
+
+    if (centerHoverValRef.current) {
+      centerHoverValRef.current.textContent = `${seg.pct}%`;
+      centerHoverValRef.current.style.color = seg.color;
+    }
+    if (centerHoverLabelRef.current) {
+      centerHoverLabelRef.current.textContent = seg.label;
+    }
+
+    gsap.to(centerDefaultRef.current, {
+      opacity: 0,
+      y: 8,
+      duration: 0.3,
+      ease: "power3.out",
+      overwrite: "auto",
+    });
+    gsap.fromTo(
+      centerHoverRef.current,
+      { opacity: 0, y: -12, scale: 0.9 },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.45,
+        ease: "back.out(1.6)",
+        overwrite: "auto",
+      },
+    );
+
+    /* Concentric pulse rings emit from center */
+    if (pulseRef.current) {
+      pulseRef.current.style.stroke = seg.color;
+      gsap.fromTo(
+        pulseRef.current,
+        { attr: { r: R - 4 }, opacity: 0.75, strokeWidth: 3 },
+        {
+          attr: { r: R + 38 },
+          opacity: 0,
+          strokeWidth: 0.5,
+          duration: 1.1,
+          ease: "power2.out",
+          overwrite: "auto",
+        },
+      );
+    }
+    if (pulseOuterRef.current) {
+      pulseOuterRef.current.style.stroke = seg.color;
+      gsap.fromTo(
+        pulseOuterRef.current,
+        { attr: { r: R - 4 }, opacity: 0.4, strokeWidth: 2 },
+        {
+          attr: { r: R + 60 },
+          opacity: 0,
+          strokeWidth: 0.5,
+          duration: 1.4,
+          ease: "power2.out",
+          delay: 0.15,
+          overwrite: "auto",
+        },
+      );
+    }
+  }, [activeIdx]);
 
   return (
     <section
@@ -240,6 +529,23 @@ export default function Tokenomics() {
         }}
       />
 
+      {/* Constellation particles */}
+      {Array.from({ length: 7 }).map((_, i) => (
+        <div
+          key={`p-${i}`}
+          className="tok-particle absolute w-1 h-1 rounded-full pointer-events-none"
+          style={{
+            background:
+              i % 3 === 0
+                ? "rgba(192,57,43,0.5)"
+                : i % 3 === 1
+                  ? "rgba(74,124,89,0.5)"
+                  : "rgba(232,220,200,0.4)",
+            boxShadow: "0 0 8px currentColor",
+          }}
+        />
+      ))}
+
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* ── Header ── */}
         <div className="text-center mb-16 lg:mb-20">
@@ -249,21 +555,48 @@ export default function Tokenomics() {
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-scarlet" />
             </span>
             <span className="font-display text-[9px] tracking-[0.35em] uppercase text-bone/60">
-              Token Distribution
+              $MBP Distribution
             </span>
           </div>
 
-          <h2 className="tok-reveal font-beast text-5xl lg:text-7xl xl:text-8xl text-bone leading-[0.9] mb-4">
-            TOKE
+          <h2
+            ref={titleRef}
+            className="font-beast text-5xl lg:text-7xl xl:text-8xl leading-[0.9] mb-4"
+            style={{ perspective: 800 }}
+          >
             <span
+              className="inline-block text-bone"
+              style={{ transformStyle: "preserve-3d" }}
+            >
+              {"TOKE".split("").map((ch, i) => (
+                <span
+                  key={`t-${i}`}
+                  className="tok-char inline-block"
+                  style={{ transformOrigin: "50% 100%" }}
+                >
+                  {ch}
+                </span>
+              ))}
+            </span>
+            <span
+              className="inline-block"
               style={{
+                transformStyle: "preserve-3d",
                 WebkitTextStroke: "2px #c0392b",
                 color: "transparent",
                 textShadow:
                   "0 0 30px rgba(192,57,43,0.2), 0 0 60px rgba(192,57,43,0.1)",
               }}
             >
-              NOMICS
+              {"NOMICS".split("").map((ch, i) => (
+                <span
+                  key={`n-${i}`}
+                  className="tok-char inline-block"
+                  style={{ transformOrigin: "50% 100%" }}
+                >
+                  {ch}
+                </span>
+              ))}
             </span>
           </h2>
 
@@ -275,17 +608,26 @@ export default function Tokenomics() {
         {/* ── Main grid ── */}
         <div className="grid lg:grid-cols-[260px_1fr_280px] gap-8 lg:gap-12 items-center mb-16 lg:mb-24">
           {/* Left — Key stats */}
-          <div className="order-2 lg:order-1 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3">
+          <div
+            className="order-2 lg:order-1 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3"
+            style={{ perspective: 700 }}
+          >
             {KEY_STATS.map((stat) => (
               <div
                 key={stat.label}
-                className="tok-stat group p-4 lg:p-5 rounded-lg border border-moss/8 bg-white/[0.02] hover:border-moss/20 hover:bg-white/[0.04] transition-all duration-300"
+                onMouseMove={handleTilt}
+                onMouseLeave={handleTiltLeave}
+                className="tok-stat group p-4 lg:p-5 rounded-lg bg-white/[0.02] border border-transparent hover:border-moss/15 hover:bg-white/[0.04] transition-[background-color,border-color] duration-300"
+                style={{ transformStyle: "preserve-3d" }}
               >
-                <div className="font-display text-[9px] tracking-[0.25em] uppercase text-ash/35 mb-2">
+                <div className="font-display text-[9px] tracking-[0.25em] uppercase text-ash/35 mb-2 group-hover:text-moss/70 transition-colors duration-300">
                   {stat.label}
                 </div>
-                <div className="font-beast text-lg lg:text-2xl text-bone leading-none mb-1">
-                  {stat.value}
+                <div
+                  className="tok-stat-value font-beast text-lg lg:text-2xl text-bone leading-none mb-1 tabular-nums"
+                  data-target={stat.target ?? ""}
+                >
+                  {stat.target ? "0" : stat.value}
                 </div>
                 <div className="font-display text-[9px] tracking-wider text-ash/25 hidden lg:block">
                   {stat.sub}
@@ -338,8 +680,8 @@ export default function Tokenomics() {
                   strokeDasharray="3 7"
                 />
 
-                {/* Tick marks */}
-                <g className="tok-tick">
+                {/* Tick marks — slowly rotating */}
+                <g className="tok-tick" ref={tickGroupRef}>
                   {Array.from({ length: 60 }, (_, i) => {
                     const a = (i / 60) * Math.PI * 2 - Math.PI / 2;
                     const major = i % 5 === 0;
@@ -358,6 +700,30 @@ export default function Tokenomics() {
                     );
                   })}
                 </g>
+
+                {/* Pulse rings (emit on segment hover) */}
+                <circle
+                  ref={pulseOuterRef}
+                  cx="150"
+                  cy="150"
+                  r={R}
+                  fill="none"
+                  stroke="transparent"
+                  strokeWidth="1"
+                  pointerEvents="none"
+                  style={{ opacity: 0 }}
+                />
+                <circle
+                  ref={pulseRef}
+                  cx="150"
+                  cy="150"
+                  r={R}
+                  fill="none"
+                  stroke="transparent"
+                  strokeWidth="1"
+                  pointerEvents="none"
+                  style={{ opacity: 0 }}
+                />
 
                 {/* Segments */}
                 {SEG_GEO.map((d, i) => (
@@ -385,6 +751,22 @@ export default function Tokenomics() {
                   />
                 ))}
 
+                {/* Shimmer sweep overlay (post-draw highlight pass) */}
+                <circle
+                  ref={shimmerRef}
+                  cx="150"
+                  cy="150"
+                  r={R}
+                  fill="none"
+                  stroke="rgba(232,220,200,0.9)"
+                  strokeWidth={SW}
+                  strokeDasharray={`12 ${CIRC - 12}`}
+                  strokeLinecap="butt"
+                  transform="rotate(-90 150 150)"
+                  pointerEvents="none"
+                  style={{ opacity: 0, mixBlendMode: "overlay" }}
+                />
+
                 {/* Segment boundary dots */}
                 {SEG_GEO.map((d, i) => {
                   const a = ((d.startAngle + 90) * Math.PI) / 180 - Math.PI / 2;
@@ -397,19 +779,43 @@ export default function Tokenomics() {
                       fill="rgba(10,13,8,0.9)"
                       stroke="rgba(74,124,89,0.15)"
                       strokeWidth="0.5"
+                      pointerEvents="none"
                     />
                   );
                 })}
               </svg>
 
-              {/* Center overlay */}
-              <div className="tok-center absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="font-beast text-3xl lg:text-4xl text-bone leading-none">
-                  $MBP
-                </span>
-                <span className="font-display text-[8px] tracking-[0.35em] uppercase text-ash/30 mt-1.5">
-                  1B Total Supply
-                </span>
+              {/* Center overlay — default + hover states */}
+              <div className="tok-center absolute inset-0 pointer-events-none">
+                <div
+                  ref={centerDefaultRef}
+                  className="absolute inset-0 flex flex-col items-center justify-center"
+                >
+                  <span className="font-beast text-3xl lg:text-4xl text-bone leading-none">
+                    $MBP
+                  </span>
+                  <span className="font-display text-[8px] tracking-[0.35em] uppercase text-ash/30 mt-1.5">
+                    1B Total Supply
+                  </span>
+                </div>
+                <div
+                  ref={centerHoverRef}
+                  className="absolute inset-0 flex flex-col items-center justify-center"
+                  style={{ opacity: 0 }}
+                >
+                  <span
+                    ref={centerHoverValRef}
+                    className="font-beast text-5xl lg:text-6xl leading-none tabular-nums text-bone"
+                  >
+                    50%
+                  </span>
+                  <span
+                    ref={centerHoverLabelRef}
+                    className="font-display text-[10px] tracking-[0.3em] uppercase text-ash/50 mt-2 text-center max-w-[140px]"
+                  >
+                    Liquidity Pool
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -421,7 +827,7 @@ export default function Tokenomics() {
               return (
                 <div
                   key={seg.label}
-                  className={`tok-legend group p-3 rounded-lg cursor-pointer transition-all duration-300 border ${
+                  className={`tok-legend group relative p-3 rounded-lg cursor-pointer transition-colors duration-300 border overflow-hidden ${
                     isActive
                       ? "bg-white/[0.04] border-moss/15"
                       : "border-transparent hover:bg-white/[0.02]"
@@ -429,23 +835,39 @@ export default function Tokenomics() {
                   onMouseEnter={() => setActiveIdx(i)}
                   onMouseLeave={() => setActiveIdx(null)}
                 >
-                  <div className="flex items-center justify-between mb-1.5">
+                  {/* Hover sweep */}
+                  <div
+                    className="absolute inset-0 pointer-events-none transition-opacity duration-500"
+                    style={{
+                      opacity: isActive ? 1 : 0,
+                      background: `linear-gradient(90deg, transparent 0%, ${seg.color}12 50%, transparent 100%)`,
+                    }}
+                  />
+
+                  <div className="relative flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2.5">
                       <div
                         className="w-2.5 h-2.5 rounded-full transition-shadow duration-300 flex-shrink-0"
                         style={{
                           backgroundColor: seg.color,
                           boxShadow: isActive
-                            ? `0 0 10px ${seg.color}90`
+                            ? `0 0 12px ${seg.color}, 0 0 4px ${seg.color}`
                             : "none",
                         }}
                       />
-                      <span className="font-display text-[11px] tracking-wider uppercase text-bone/70">
+                      <span
+                        className="font-display text-[11px] tracking-wider uppercase transition-colors duration-300"
+                        style={{
+                          color: isActive
+                            ? "rgba(232,220,200,0.95)"
+                            : "rgba(232,220,200,0.7)",
+                        }}
+                      >
                         {seg.label}
                       </span>
                     </div>
                     <span
-                      className="font-beast text-sm transition-colors duration-300"
+                      className="font-beast text-sm tabular-nums transition-colors duration-300"
                       style={{ color: isActive ? seg.color : "#e8dcc8" }}
                     >
                       {seg.pct}%
@@ -453,20 +875,20 @@ export default function Tokenomics() {
                   </div>
 
                   {/* Progress bar */}
-                  <div className="h-[3px] rounded-full bg-white/[0.04] overflow-hidden ml-5">
+                  <div className="relative h-[3px] rounded-full bg-white/[0.04] overflow-hidden ml-5">
                     <div
                       className="tok-bar h-full rounded-full transition-[filter] duration-300"
                       data-target={`${(seg.pct / MAX_PCT) * 100}%`}
                       style={{
                         backgroundColor: seg.color,
                         filter: isActive
-                          ? `drop-shadow(0 0 4px ${seg.color}80)`
+                          ? `drop-shadow(0 0 5px ${seg.color})`
                           : "none",
                       }}
                     />
                   </div>
 
-                  <div className="ml-5 mt-1">
+                  <div className="relative ml-5 mt-1">
                     <span className="font-display text-[9px] tracking-wider text-ash/25">
                       {seg.desc}
                     </span>
@@ -478,17 +900,23 @@ export default function Tokenomics() {
         </div>
 
         {/* ── Trust features ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div
+          className="grid grid-cols-2 lg:grid-cols-4 gap-3"
+          style={{ perspective: 700 }}
+        >
           {TRUST.map((feat, i) => (
             <div
               key={feat.label}
-              className="tok-trust group flex items-center gap-3 p-4 rounded-lg border border-moss/8 bg-white/[0.015] hover:border-moss/15 hover:bg-white/[0.03] transition-all duration-300"
+              onMouseMove={handleTilt}
+              onMouseLeave={handleTiltLeave}
+              className="tok-trust group flex items-center gap-3 p-4 rounded-lg bg-white/[0.015] border border-transparent hover:border-moss/15 hover:bg-white/[0.03] transition-[background-color,border-color] duration-300"
+              style={{ transformStyle: "preserve-3d" }}
             >
-              <div className="flex-shrink-0 w-8 h-8 rounded-full border border-moss/15 bg-moss/[0.06] flex items-center justify-center text-moss/60 group-hover:text-moss group-hover:border-moss/30 transition-colors duration-300">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full border border-moss/15 bg-moss/[0.06] flex items-center justify-center text-moss/60 group-hover:text-moss group-hover:border-moss/30 group-hover:bg-moss/[0.12] transition-colors duration-300">
                 <TrustIcon index={i} />
               </div>
               <div>
-                <div className="font-display text-[11px] tracking-wider uppercase text-bone/70 leading-tight">
+                <div className="font-display text-[11px] tracking-wider uppercase text-bone/70 leading-tight group-hover:text-bone transition-colors duration-300">
                   {feat.label}
                 </div>
                 <div className="font-display text-[9px] tracking-wider text-ash/25 mt-0.5">

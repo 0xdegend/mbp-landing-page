@@ -38,6 +38,222 @@ const SPARKS = [
   { cx: 68, cy: 44, r: 0.4 },
 ];
 
+/* ═══════════════════════════════════════════════════════
+   Beast Maw — corner fangs, lurking eyes, heartbeat & roar
+   A living layer of micro-interactions bound to the primary
+   CTA. Drives a CSS variable --heart via GSAP for a unified
+   breath across text glow, edge bar, fang bloom, and eyes.
+   ═══════════════════════════════════════════════════════ */
+function BeastMaw() {
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const btn = root.closest(".btn-beast-primary") as HTMLElement | null;
+    if (!btn) return;
+
+    const topFangs = root.querySelectorAll<SVGSVGElement>(".fang-tl, .fang-tr");
+    const botFangs = root.querySelectorAll<SVGSVGElement>(".fang-bl, .fang-br");
+    const fangs = root.querySelectorAll<SVGSVGElement>(".btn-fang");
+    const eyes = root.querySelectorAll<HTMLSpanElement>(".btn-eye");
+    const textEl = btn.querySelector<HTMLElement>(".btn-text");
+    const pawEl = btn.querySelector<HTMLElement>(".btn-paw");
+    const trembleTargets = [textEl, pawEl].filter(
+      (el): el is HTMLElement => !!el,
+    );
+
+    // ── Resting state ──
+    gsap.set(topFangs, { transformOrigin: "center top", scaleY: 0.35 });
+    gsap.set(botFangs, { transformOrigin: "center bottom", scaleY: 0.35 });
+    gsap.set(eyes, {
+      opacity: 0.6,
+      scale: 1,
+      transformOrigin: "center center",
+    });
+
+    // ── Heartbeat (lub-dub) drives --heart across child glows ──
+    const heartbeat = gsap.timeline({ repeat: -1, delay: 3 });
+    heartbeat
+      .to(btn, { "--heart": 1, duration: 0.14, ease: "power2.out" })
+      .to(btn, { "--heart": 0.15, duration: 0.18, ease: "power2.in" })
+      .to(btn, { "--heart": 1.2, duration: 0.12, ease: "power2.out" })
+      .to(btn, { "--heart": 0, duration: 0.24, ease: "power2.in" })
+      .to({}, { duration: 1.1 });
+
+    // ── Ember-eye blink cycle ──
+    const blink = gsap.timeline({ repeat: -1, repeatDelay: 3.5, delay: 4.5 });
+    blink
+      .to(eyes, {
+        opacity: 0,
+        duration: 0.06,
+        ease: "power2.in",
+        stagger: 0.02,
+      })
+      .to(eyes, {
+        opacity: 0.6,
+        duration: 0.12,
+        ease: "power2.out",
+        stagger: 0.02,
+      });
+
+    // ── Growl tremor — beast is restless ──
+    const growl = gsap.timeline({ repeat: -1, delay: 6.5 });
+    if (trembleTargets.length) {
+      growl
+        .to(trembleTargets, { x: -1.2, duration: 0.04, ease: "none" })
+        .to(trembleTargets, { x: 1.4, duration: 0.04, ease: "none" })
+        .to(trembleTargets, { x: -0.9, duration: 0.04, ease: "none" })
+        .to(trembleTargets, { x: 0.7, duration: 0.04, ease: "none" })
+        .to(trembleTargets, { x: 0, duration: 0.08, ease: "none" })
+        .to({}, { duration: 6.4 });
+    }
+
+    // ── Hover: fangs snap open, eyes ignite ──
+    const onEnter = () => {
+      blink.pause();
+      gsap.to(fangs, {
+        scaleY: 1.12,
+        duration: 0.3,
+        ease: "back.out(2.8)",
+        overwrite: "auto",
+      });
+      gsap.to(eyes, {
+        opacity: 1,
+        scale: 1.45,
+        duration: 0.35,
+        ease: "power2.out",
+        overwrite: "auto",
+      });
+    };
+    const onLeave = () => {
+      gsap.to(fangs, {
+        scaleY: 0.35,
+        duration: 0.4,
+        ease: "power2.out",
+        overwrite: "auto",
+      });
+      gsap.to(eyes, {
+        opacity: 0.6,
+        scale: 1,
+        duration: 0.4,
+        ease: "power2.out",
+        overwrite: "auto",
+        onComplete: () => {
+          blink.restart();
+        },
+      });
+    };
+
+    // ── Click: fang clamp + roar shockwave rings ──
+    const onClick = () => {
+      gsap
+        .timeline()
+        .to(fangs, {
+          scaleY: 1.45,
+          duration: 0.08,
+          ease: "power3.out",
+          overwrite: "auto",
+        })
+        .to(fangs, {
+          scaleY: 1.12,
+          duration: 0.22,
+          ease: "back.out(3)",
+        });
+
+      const rect = btn.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      for (let i = 0; i < 3; i++) {
+        const ring = document.createElement("div");
+        ring.className = "beast-roar-ring";
+        ring.style.left = `${cx}px`;
+        ring.style.top = `${cy}px`;
+        document.body.appendChild(ring);
+        gsap.fromTo(
+          ring,
+          { scale: 0.35, opacity: 0.9 },
+          {
+            scale: 3.2 + i * 0.7,
+            opacity: 0,
+            duration: 0.85 + i * 0.12,
+            delay: i * 0.08,
+            ease: "power2.out",
+            onComplete: () => ring.remove(),
+          },
+        );
+      }
+    };
+
+    btn.addEventListener("mouseenter", onEnter);
+    btn.addEventListener("mouseleave", onLeave);
+    btn.addEventListener("click", onClick);
+
+    return () => {
+      btn.removeEventListener("mouseenter", onEnter);
+      btn.removeEventListener("mouseleave", onLeave);
+      btn.removeEventListener("click", onClick);
+      heartbeat.kill();
+      blink.kill();
+      growl.kill();
+      gsap.set(btn, { clearProps: "--heart" });
+    };
+  }, []);
+
+  return (
+    <div ref={rootRef} className="btn-maw" aria-hidden>
+      {/* Shared fang gradient — bone to scarlet tip */}
+      <svg className="btn-maw-defs" width="0" height="0">
+        <defs>
+          <linearGradient id="btn-fang-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#f2e6d0" stopOpacity="0.95" />
+            <stop offset="55%" stopColor="#a0856a" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#c0392b" stopOpacity="0.95" />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      {/* Corner fangs — bone tips gripping the button like a jaw */}
+      <svg
+        className="btn-fang fang-tl"
+        width="20"
+        height="16"
+        viewBox="0 0 20 16"
+      >
+        <path d="M0,0 L20,0 L4,16 Z" />
+      </svg>
+      <svg
+        className="btn-fang fang-tr"
+        width="20"
+        height="16"
+        viewBox="0 0 20 16"
+      >
+        <path d="M0,0 L20,0 L16,16 Z" />
+      </svg>
+      <svg
+        className="btn-fang fang-bl"
+        width="20"
+        height="16"
+        viewBox="0 0 20 16"
+      >
+        <path d="M0,16 L20,16 L4,0 Z" />
+      </svg>
+      <svg
+        className="btn-fang fang-br"
+        width="20"
+        height="16"
+        viewBox="0 0 20 16"
+      >
+        <path d="M0,16 L20,16 L16,0 Z" />
+      </svg>
+
+      {/* Ember eyes — coals lurking behind the text */}
+      <span className="btn-eye eye-l" />
+      <span className="btn-eye eye-r" />
+    </div>
+  );
+}
+
 function ClawScratches() {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -400,6 +616,7 @@ export default function HeroLeftPanel({
           <ClawScratches />
           <span className="btn-edge-bar" />
           <canvas ref={primaryCanvasRef} className="btn-ember-canvas" />
+          <BeastMaw />
           <span className="btn-paw">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <ellipse cx="7" cy="5" rx="2.5" ry="3" />

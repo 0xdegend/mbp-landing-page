@@ -19,7 +19,7 @@ function truncateMiddle(value: string, keepStart = 14, keepEnd = 14) {
 const DISPLAY_ADDRESS = truncateMiddle(CONTRACT_ADDRESS, 14, 16);
 
 const DEXSCREENER_URL =
-  "https://dexscreener.com/sui/0x4d68a38f0c7abcea02106da3bab76f5e6b0b242c100746eb1ef9692cd1129d25::mbp::MBP";
+  "https://dexscreener.com/sui/0x4d1bba79ddf1a1b4ce6253e9634789737537ef0214dbfac9b478a1c8dd0bb40a";
 const SUISCAN_URL =
   "https://suiscan.xyz/mainnet/coin/0x4d68a38f0c7abcea02106da3bab76f5e6b0b242c100746eb1ef9692cd1129d25::mbp::MBP";
 const NOODLES_URL =
@@ -1150,6 +1150,7 @@ export default function Ecosystem() {
 
   return (
     <section
+      id="ecosystem"
       ref={sectionRef}
       className="relative py-20 bg-[#060a05] overflow-hidden"
     >

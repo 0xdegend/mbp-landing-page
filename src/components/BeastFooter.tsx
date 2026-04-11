@@ -1,24 +1,32 @@
 "use client";
 
 export default function BeastFooter() {
+  const currentYear = new Date().getFullYear();
+
   const links = {
     "The Beast": [
       { label: "About $MBP", href: "#lore" },
       { label: "Burn Mechanics", href: "#burn" },
-      { label: "The Hunt (Roadmap)", href: "#roadmap" },
+      { label: "The Ecosystem", href: "#ecosystem" },
       { label: "Alliance", href: "#alliance" },
     ],
     "The Pack": [
-      { label: "Telegram", href: "#" },
-      { label: "Twitter / X", href: "#" },
-      { label: "Discord", href: "#" },
-      { label: "DexScreener", href: "#" },
+      { label: "Telegram", href: "https://t.me/manbearpig_25" },
+      { label: "Twitter / X", href: "https://x.com/ManBearPig_25" },
+      { label: "Discord", href: "https://discord.gg/P6J99uXnnp" },
+      {
+        label: "DexScreener",
+        href: "https://dexscreener.com/sui/0x4d68a38f0c7abcea02106da3bab76f5e6b0b242c100746eb1ef9692cd1129d25::mbp::MBP",
+      },
     ],
     "The Forest": [
-      { label: "PandaSui", href: "#" },
-      { label: "Sui Ecosystem", href: "https://sui.io" },
-      { label: "CoinGecko", href: "#" },
-      { label: "CMC", href: "#" },
+      {
+        label: "PandaSui",
+        href: "https://www.pandasui.com/projects/manbearpig",
+      },
+      // { label: "Sui Ecosystem", href: "https://sui.io" },
+      // { label: "CoinGecko", href: "#" },
+      // { label: "CMC", href: "#" },
     ],
   };
 
@@ -46,11 +54,14 @@ export default function BeastFooter() {
                 <div className="font-beast text-xl text-bone">
                   MAN<span className="text-scarlet">BEAR</span>PIG
                 </div>
-                <div className="font-display text-xs tracking-widest text-moss uppercase">$MBP · Sui</div>
+                <div className="font-display text-xs tracking-widest text-moss uppercase">
+                  $MBP · Sui
+                </div>
               </div>
             </div>
             <p className="font-body text-sm text-ash/70 leading-relaxed mb-4">
-              The most savage meme beast on the Sui blockchain. Half man. Half bear. Half pig. 100% community.
+              The most savage meme beast on the Sui blockchain. Half man. Half
+              bear. Half pig. 100% community.
             </p>
             <div className="flex gap-3">
               {["𝕏", "📢", "💬"].map((icon, i) => (
@@ -58,7 +69,10 @@ export default function BeastFooter() {
                   key={i}
                   href="#"
                   className="w-9 h-9 flex items-center justify-center border border-forest-green/30 hover:border-scarlet/50 hover:bg-scarlet/10 transition-all duration-200 text-sm"
-                  style={{ clipPath: "polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)" }}
+                  style={{
+                    clipPath:
+                      "polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)",
+                  }}
                 >
                   {icon}
                 </a>
@@ -69,7 +83,9 @@ export default function BeastFooter() {
           {/* Link columns */}
           {Object.entries(links).map(([group, items]) => (
             <div key={group}>
-              <h4 className="font-display text-xs tracking-[0.3em] uppercase text-scarlet mb-4">{group}</h4>
+              <h4 className="font-display text-xs tracking-[0.3em] uppercase text-scarlet mb-4">
+                {group}
+              </h4>
               <ul className="space-y-3">
                 {items.map((item) => (
                   <li key={item.label}>
@@ -91,10 +107,11 @@ export default function BeastFooter() {
         <div className="border-t border-forest-green/20 pt-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="font-display text-xs tracking-widest uppercase text-ash/40">
-              © 2024 ManBearPig ($MBP). All rights reserved. Built on Sui.
+              © {currentYear} ManBearPig. All rights reserved. Built on Sui.
             </p>
             <p className="font-display text-xs tracking-wider text-ash/30 italic">
-              "Not financial advice. The beast is not responsible for your bags."
+              "Not financial advice. The beast is not responsible for your
+              bags."
             </p>
           </div>
         </div>

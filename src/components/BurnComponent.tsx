@@ -464,7 +464,6 @@ export default function BurnComponent() {
       suffix: "",
       accent: "#c0392b",
     },
-    { label: "Burn Rate", value: "2.4%", suffix: "", accent: "#7ec8e3" },
     { label: "Beast Hunger", value: "100%", suffix: "", accent: "#e8dcc8" },
   ];
 

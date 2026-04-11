@@ -290,6 +290,7 @@ body {
    Deep forest black, scarlet edge bar, ember canvas
    ════════════════════════════════════════════════════════ */
 .btn-beast-primary {
+  --heart: 0;
   background: var(--color-forest-black);
   color: var(--color-bone);
   box-shadow:
@@ -297,7 +298,7 @@ body {
     0 0 0 1px rgba(192, 57, 43, 0.15);
 }
 
-/* ── Scarlet left-edge pulse bar ─────────────────────── */
+/* ── Scarlet left-edge bar (heartbeat-driven glow) ─────── */
 .btn-edge-bar {
   position: absolute;
   left: 0;
@@ -306,25 +307,12 @@ body {
   width: 4px;
   background: var(--color-scarlet);
   z-index: 3;
-  animation: edge-pulse 2s ease-in-out infinite;
-}
-
-@keyframes edge-pulse {
-  0%,
-  100% {
-    box-shadow:
-      0 0 6px rgba(192, 57, 43, 0.4),
-      0 0 16px rgba(192, 57, 43, 0.2),
-      0 0 30px rgba(192, 57, 43, 0.1);
-    opacity: 1;
-  }
-  50% {
-    box-shadow:
-      0 0 12px rgba(192, 57, 43, 0.8),
-      0 0 30px rgba(192, 57, 43, 0.5),
-      0 0 50px rgba(192, 57, 43, 0.2);
-    opacity: 0.9;
-  }
+  box-shadow:
+    0 0 calc(8px + var(--heart) * 16px)
+      rgba(192, 57, 43, calc(0.4 + var(--heart) * 0.5)),
+    0 0 calc(22px + var(--heart) * 32px)
+      rgba(192, 57, 43, calc(0.18 + var(--heart) * 0.4));
+  will-change: box-shadow;
 }
 
 /* ── Canvas for ember particles ──────────────────────── */
@@ -379,6 +367,117 @@ body {
     0 2px 16px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(192, 57, 43, 0.3),
     0 0 30px rgba(192, 57, 43, 0.15);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BEAST MAW — corner fangs, ember eyes, roar shockwave
+   All glows driven by --heart, tweened by GSAP timeline.
+   ═══════════════════════════════════════════════════════════ */
+.btn-maw {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.btn-maw-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Corner fangs — bone tips gripping the button like a jaw */
+.btn-fang {
+  position: absolute;
+  width: 20px;
+  height: 16px;
+  overflow: visible;
+  transform: scaleY(0.35);
+  transform-origin: center top;
+  will-change: transform, filter;
+  filter: drop-shadow(
+    0 0 calc(4px + var(--heart) * 6px)
+      rgba(192, 57, 43, calc(0.35 + var(--heart) * 0.45))
+  );
+}
+.btn-fang path {
+  fill: url(#btn-fang-grad);
+  stroke: rgba(139, 26, 26, 0.7);
+  stroke-width: 0.6;
+}
+.btn-fang.fang-tl {
+  top: 0;
+  left: 0;
+}
+.btn-fang.fang-tr {
+  top: 0;
+  right: 0;
+}
+.btn-fang.fang-bl {
+  bottom: 0;
+  left: 0;
+  transform-origin: center bottom;
+}
+.btn-fang.fang-br {
+  bottom: 0;
+  right: 0;
+  transform-origin: center bottom;
+}
+
+/* Ember eyes — coals lurking behind the text */
+.btn-eye {
+  position: absolute;
+  top: 7px;
+  width: 3.5px;
+  height: 3.5px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #ffc48a 0%,
+    #e84d0e 40%,
+    #8b1a1a 80%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 calc(4px + var(--heart) * 6px)
+      rgba(255, 130, 60, calc(0.75 + var(--heart) * 0.25)),
+    0 0 calc(10px + var(--heart) * 10px)
+      rgba(232, 77, 14, calc(0.45 + var(--heart) * 0.35));
+  z-index: 1;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.btn-eye.eye-l {
+  left: calc(50% - 7px);
+}
+.btn-eye.eye-r {
+  left: calc(50% + 3.5px);
+}
+
+/* Hot text glow synced to heartbeat (primary only) */
+.btn-beast-primary .btn-text {
+  text-shadow:
+    0 0 calc(4px + var(--heart) * 10px)
+      rgba(232, 77, 14, calc(0.25 + var(--heart) * 0.55)),
+    0 0 calc(12px + var(--heart) * 18px)
+      rgba(192, 57, 43, calc(0.12 + var(--heart) * 0.38));
+}
+
+/* Roar shockwave rings — escape the button to fill the void */
+.beast-roar-ring {
+  position: fixed;
+  width: 120px;
+  height: 120px;
+  margin: -60px 0 0 -60px;
+  border-radius: 50%;
+  border: 2px solid var(--color-scarlet);
+  box-shadow:
+    0 0 24px rgba(192, 57, 43, 0.55),
+    inset 0 0 18px rgba(232, 77, 14, 0.4);
+  pointer-events: none;
+  z-index: 9998;
+  will-change: transform, opacity;
 }
 
 /* ── Seized state (after copy) ────────────────────────── */

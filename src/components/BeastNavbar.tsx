@@ -25,10 +25,10 @@ export default function BeastNavbar() {
   }, []);
 
   const navLinks = [
-    { label: "The Lore", href: "#lore" },
-    { label: "The Burn", href: "#burn" },
-    { label: "The Pack", href: "#pack" },
-    { label: "The Hunt", href: "#roadmap" },
+    { label: "Origin", href: "#lore" },
+    { label: "Ecosystem", href: "#ecosystem" },
+    { label: "Burn", href: "#burn" },
+    { label: "Tokenomics", href: "#tokenomics" },
     { label: "Alliance", href: "#alliance" },
   ];
 

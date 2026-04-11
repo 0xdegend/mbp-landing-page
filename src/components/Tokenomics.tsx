@@ -312,37 +312,37 @@ export default function Tokenomics() {
         );
       });
 
-      /* Ring segments draw on sequentially */
+      /* Ring segments draw on sequentially — snappy power3 flick */
       segs.forEach((seg, i) => {
         tl.to(
           seg,
           {
             strokeDashoffset: 0,
-            duration: 0.4 + SEG_GEO[i].pct * 0.008,
-            ease: "power2.out",
+            duration: 0.18 + SEG_GEO[i].pct * 0.003,
+            ease: "power3.out",
           },
-          i === 0 ? "<+=0.1" : "<+=0.08",
+          i === 0 ? "<+=0.05" : "<+=0.04",
         );
       });
 
       /* Shimmer sweep around ring after segments are drawn */
       if (shimmerRef.current) {
         const shimmer = shimmerRef.current;
-        tl.set(shimmer, { strokeDashoffset: 0, opacity: 0 }, ">-0.1");
+        tl.set(shimmer, { strokeDashoffset: 0, opacity: 0 }, ">-0.15");
         tl.to(
           shimmer,
-          { opacity: 0.55, duration: 0.15, ease: "power2.out" },
+          { opacity: 0.55, duration: 0.1, ease: "power2.out" },
           ">",
         );
         tl.to(
           shimmer,
-          { strokeDashoffset: -CIRC, duration: 1.4, ease: "power2.inOut" },
+          { strokeDashoffset: -CIRC, duration: 0.7, ease: "power2.out" },
           "<",
         );
         tl.to(
           shimmer,
-          { opacity: 0, duration: 0.3, ease: "power2.out" },
-          ">-0.3",
+          { opacity: 0, duration: 0.2, ease: "power2.out" },
+          ">-0.2",
         );
       }
 
@@ -353,11 +353,11 @@ export default function Tokenomics() {
         {
           opacity: 1,
           scale: 1,
-          duration: 0.5,
+          duration: 0.4,
           ease: "back.out(1.7)",
           immediateRender: false,
         },
-        "-=1.2",
+        "-=0.6",
       );
 
       /* Tick marks fade in */

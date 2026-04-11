@@ -787,16 +787,74 @@ function SuiScanCard() {
           {/* Info chips */}
           <div className="flex items-center gap-2 mb-5">
             {[
-              { label: "Holders", icon: "👥" },
-              { label: "Txns", icon: "⚡" },
-              { label: "Supply", icon: "🔥" },
+              {
+                label: "Holders",
+                icon: (
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="9" cy="8" r="3.2" />
+                    <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
+                    <circle cx="16.5" cy="7.5" r="2.3" />
+                    <path d="M15 13.5c3.2 0 5.8 2.2 5.8 5.3" />
+                  </svg>
+                ),
+              },
+              {
+                label: "Txns",
+                icon: (
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M4 7h14" />
+                    <path d="M14 3l4 4-4 4" />
+                    <path d="M20 17H6" />
+                    <path d="M10 13l-4 4 4 4" />
+                  </svg>
+                ),
+              },
+              {
+                label: "Supply",
+                icon: (
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <ellipse cx="12" cy="5" rx="8" ry="2.8" />
+                    <path d="M4 5v6c0 1.55 3.58 2.8 8 2.8s8-1.25 8-2.8V5" />
+                    <path d="M4 11v6c0 1.55 3.58 2.8 8 2.8s8-1.25 8-2.8v-6" />
+                  </svg>
+                ),
+              },
             ].map(({ label, icon }) => (
               <div
                 key={label}
-                className="flex-1 text-center py-2 rounded border border-sky-ice/10 bg-sky-ice/[0.02] group-hover:border-sky-ice/15 transition-colors duration-300"
+                className="flex-1 flex flex-col items-center py-2 rounded border border-sky-ice/10 bg-sky-ice/[0.02] group-hover:border-sky-ice/15 transition-colors duration-300"
               >
-                <span className="text-[10px]">{icon}</span>
-                <p className="font-display text-[8px] tracking-widest uppercase text-sky-ice/40 mt-0.5">
+                <span className="inline-flex text-sky-ice/45 group-hover:text-sky-ice/90 transition-colors duration-300">
+                  {icon}
+                </span>
+                <p className="font-display text-[8px] tracking-widest uppercase text-sky-ice/40 mt-1">
                   {label}
                 </p>
               </div>

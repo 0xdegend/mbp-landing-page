@@ -710,7 +710,7 @@ export default function FinalCTA() {
                     stroke="rgba(232,220,200,0.08)"
                     strokeWidth="2"
                   />
-                  {/* Tick marks */}
+                  {/* Tick marks — rounded to avoid hydration drift */}
                   {Array.from({ length: 32 }, (_, i) => {
                     const a = (i / 32) * Math.PI * 2 - Math.PI / 2;
                     const r1 = HOLD_R + 6;
@@ -718,10 +718,10 @@ export default function FinalCTA() {
                     return (
                       <line
                         key={i}
-                        x1={70 + Math.cos(a) * r1}
-                        y1={70 + Math.sin(a) * r1}
-                        x2={70 + Math.cos(a) * r2}
-                        y2={70 + Math.sin(a) * r2}
+                        x1={(70 + Math.cos(a) * r1).toFixed(3)}
+                        y1={(70 + Math.sin(a) * r1).toFixed(3)}
+                        x2={(70 + Math.cos(a) * r2).toFixed(3)}
+                        y2={(70 + Math.sin(a) * r2).toFixed(3)}
                         stroke={`rgba(192,57,43,${i % 4 === 0 ? 0.45 : 0.18})`}
                         strokeWidth={i % 4 === 0 ? "1" : "0.5"}
                       />

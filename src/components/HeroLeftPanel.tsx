@@ -45,7 +45,7 @@ const SPARKS = [
    breath across text glow, edge bar, fang bloom, and eyes.
    ═══════════════════════════════════════════════════════ */
 function BeastMaw() {
-  const rootRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -201,7 +201,7 @@ function BeastMaw() {
   }, []);
 
   return (
-    <div ref={rootRef} className="btn-maw" aria-hidden>
+    <span ref={rootRef} className="btn-maw" aria-hidden>
       {/* Shared fang gradient — bone to scarlet tip */}
       <svg className="btn-maw-defs" width="0" height="0">
         <defs>
@@ -250,7 +250,7 @@ function BeastMaw() {
       {/* Ember eyes — coals lurking behind the text */}
       <span className="btn-eye eye-l" />
       <span className="btn-eye eye-r" />
-    </div>
+    </span>
   );
 }
 

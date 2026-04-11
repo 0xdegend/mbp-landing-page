@@ -161,20 +161,21 @@ function BurnRing({
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
         style={{ filter: "drop-shadow(0 0 6px rgba(232,77,14,0.35))" }}
       />
-      {/* Tick marks */}
+      {/* Tick marks — coords rounded to avoid SSR/client V8 trig drift */}
       {Array.from({ length: 48 }).map((_, i) => {
         const angle = (i / 48) * 360 - 90;
         const rad = (angle * Math.PI) / 180;
         const major = i % 4 === 0;
         const r1 = r - (major ? 8 : 4);
         const r2 = r - 1;
+        const cx = size / 2;
         return (
           <line
             key={i}
-            x1={size / 2 + Math.cos(rad) * r1}
-            y1={size / 2 + Math.sin(rad) * r1}
-            x2={size / 2 + Math.cos(rad) * r2}
-            y2={size / 2 + Math.sin(rad) * r2}
+            x1={(cx + Math.cos(rad) * r1).toFixed(3)}
+            y1={(cx + Math.sin(rad) * r1).toFixed(3)}
+            x2={(cx + Math.cos(rad) * r2).toFixed(3)}
+            y2={(cx + Math.sin(rad) * r2).toFixed(3)}
             stroke={major ? "rgba(232,77,14,0.18)" : "rgba(255,255,255,0.03)"}
             strokeWidth={major ? 1.5 : 0.5}
           />

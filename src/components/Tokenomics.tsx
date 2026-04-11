@@ -680,7 +680,7 @@ export default function Tokenomics() {
                   strokeDasharray="3 7"
                 />
 
-                {/* Tick marks — slowly rotating */}
+                {/* Tick marks — slowly rotating (rounded to avoid hydration drift) */}
                 <g className="tok-tick" ref={tickGroupRef}>
                   {Array.from({ length: 60 }, (_, i) => {
                     const a = (i / 60) * Math.PI * 2 - Math.PI / 2;
@@ -690,10 +690,10 @@ export default function Tokenomics() {
                     return (
                       <line
                         key={i}
-                        x1={150 + Math.cos(a) * r1}
-                        y1={150 + Math.sin(a) * r1}
-                        x2={150 + Math.cos(a) * r2}
-                        y2={150 + Math.sin(a) * r2}
+                        x1={(150 + Math.cos(a) * r1).toFixed(3)}
+                        y1={(150 + Math.sin(a) * r1).toFixed(3)}
+                        x2={(150 + Math.cos(a) * r2).toFixed(3)}
+                        y2={(150 + Math.sin(a) * r2).toFixed(3)}
                         stroke={`rgba(74,124,89,${major ? 0.2 : 0.07})`}
                         strokeWidth={major ? "1" : "0.5"}
                       />
@@ -773,8 +773,8 @@ export default function Tokenomics() {
                   return (
                     <circle
                       key={`dot-${i}`}
-                      cx={150 + Math.cos(a) * R}
-                      cy={150 + Math.sin(a) * R}
+                      cx={(150 + Math.cos(a) * R).toFixed(3)}
+                      cy={(150 + Math.sin(a) * R).toFixed(3)}
                       r="2"
                       fill="rgba(10,13,8,0.9)"
                       stroke="rgba(74,124,89,0.15)"

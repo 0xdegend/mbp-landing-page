@@ -238,6 +238,17 @@ export default function FinalCTA() {
         progressCircleRef.current.style.strokeDasharray = `${HOLD_CIRC}`;
         progressCircleRef.current.style.strokeDashoffset = `${HOLD_CIRC}`;
       }
+
+      /* Idle breathing on the dormant standing image — subtle slow pulse */
+      if (standingImageRef.current) {
+        gsap.to(standingImageRef.current, {
+          scale: 1.015,
+          duration: 4.5,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        });
+      }
     },
     { scope: sectionRef },
   );
@@ -279,6 +290,26 @@ export default function FinalCTA() {
         boxShadow:
           "0 30px 80px rgba(0,0,0,0.6), 0 0 0 2px rgba(192,57,43,0.7), 0 0 120px rgba(192,57,43,0.55), 0 0 60px rgba(232,77,14,0.4)",
         duration: 0.7,
+        ease: "power2.out",
+        overwrite: "auto",
+      });
+    }
+
+    /* ── Awaken: start the video and crossfade the standing image out ── */
+    const video = videoRef.current;
+    if (video) {
+      video.muted = true;
+      video.currentTime = 0;
+      const p = video.play();
+      if (p && typeof p.catch === "function") p.catch(() => {});
+    }
+    if (standingImageRef.current) {
+      // Kill the idle breathing tween so it can't fight our fade
+      gsap.killTweensOf(standingImageRef.current);
+      gsap.to(standingImageRef.current, {
+        opacity: 0,
+        scale: 1.08,
+        duration: 0.9,
         ease: "power2.out",
         overwrite: "auto",
       });
@@ -840,10 +871,37 @@ export default function FinalCTA() {
                 loop
                 muted
                 playsInline
-                autoPlay
                 preload="auto"
                 aria-label="Summon the beast"
               />
+
+              {/* ── Dormant state: standing beast image layered over the video ── */}
+              <div
+                ref={standingImageRef}
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  transformOrigin: "50% 55%",
+                  willChange: "opacity, transform",
+                }}
+              >
+                <Image
+                  src="/standing-beast.jpg"
+                  alt="ManBearPig standing in the mist"
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-cover"
+                />
+                {/* Grading tint so the dormant image matches the forest palette */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, rgba(10,13,8,0.25) 0%, rgba(10,13,8,0) 40%, rgba(10,13,8,0.35) 100%)",
+                    mixBlendMode: "multiply",
+                  }}
+                />
+              </div>
 
               {/* Scan lines */}
               <div

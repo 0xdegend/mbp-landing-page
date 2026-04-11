@@ -1,64 +1,57 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { fetchBurnData } from "@/lib/api/burn";
 
 gsap.registerPlugin(ScrollTrigger);
 
 /* ═══════════════════════════════════════════════════════
    Token distribution
+   ───────────────────────────────────────────────────────
+   Burned %  → pulled live from /api/burn (same source as
+               BurnComponent)
+   Circulating = 100 − burned − LP − staked (derived)
+   LP & Staked are fixed project-level allocations that
+   do not update from on-chain data.
    ═══════════════════════════════════════════════════════ */
-const SEGMENTS = [
+const TOTAL_SUPPLY = 1_000_000_000;
+const FALLBACK_BURNED = 183_120_000;
+const LP_PCT = 13.75;
+const STAKED_PCT = 5.42;
+
+type SegmentMeta = {
+  key: "lp" | "burned" | "circulating" | "staked";
+  label: string;
+  color: string;
+  desc: string;
+};
+
+const SEGMENT_META: SegmentMeta[] = [
   {
+    key: "lp",
     label: "Liquidity Pool",
-    pct: 13.75,
     color: "#4a7c59",
     desc: "Locked & secured",
   },
   {
+    key: "burned",
     label: "Burned",
-    pct: 18.31,
     color: "#c0392b",
     desc: "Permanently removed",
   },
   {
+    key: "circulating",
     label: "Circulating Supply",
-    pct: 62.52,
     color: "#7ec8e3",
     desc: "Current Circulating Supply",
   },
   {
+    key: "staked",
     label: "Staked",
-    pct: 5.42,
     color: "#e84d0e",
     desc: "Staked by the community",
-  },
-];
-
-const KEY_STATS: {
-  label: string;
-  value: string;
-  sub: string;
-  target: number | null;
-}[] = [
-  {
-    label: "Total Supply",
-    value: "1,000,000,000",
-    sub: "$MBP tokens",
-    target: 1_000_000_000,
-  },
-  {
-    label: "Circulating",
-    value: "816,880,000",
-    sub: "Available supply",
-    target: 816_880_000,
-  },
-  {
-    label: "Buy / Sell Tax",
-    value: "0% / 0%",
-    sub: "Zero-tax trading",
-    target: null,
   },
 ];
 
@@ -74,16 +67,34 @@ const R = 110;
 const CIRC = 2 * Math.PI * R;
 const SW = 26;
 const GAP = 4;
-const MAX_PCT = Math.max(...SEGMENTS.map((s) => s.pct));
 
-const SEG_GEO = SEGMENTS.map((seg, i) => {
-  const prev = SEGMENTS.slice(0, i).reduce((s, x) => s + x.pct, 0);
-  return {
-    ...seg,
-    startAngle: -90 + (prev / 100) * 360,
-    segLen: (seg.pct / 100) * CIRC - GAP,
+type Segment = SegmentMeta & { pct: number };
+type SegmentGeo = Segment & { startAngle: number; segLen: number };
+
+/** Build the four live segments from the current burn % */
+function buildSegments(burnPct: number): Segment[] {
+  // Clamp so rounding noise can't produce a negative circulating slice
+  const circulatingPct = Math.max(0, 100 - burnPct - LP_PCT - STAKED_PCT);
+  const pcts: Record<SegmentMeta["key"], number> = {
+    lp: LP_PCT,
+    burned: burnPct,
+    circulating: circulatingPct,
+    staked: STAKED_PCT,
   };
-});
+  return SEGMENT_META.map((m) => ({ ...m, pct: pcts[m.key] }));
+}
+
+/** Compute start angles and dash lengths for each segment */
+function buildSegGeo(segments: Segment[]): SegmentGeo[] {
+  return segments.map((seg, i) => {
+    const prev = segments.slice(0, i).reduce((s, x) => s + x.pct, 0);
+    return {
+      ...seg,
+      startAngle: -90 + (prev / 100) * 360,
+      segLen: (seg.pct / 100) * CIRC - GAP,
+    };
+  });
+}
 
 /* ── Magnetic tilt helpers (reused for stat + trust cards) ── */
 function handleTilt(e: ReactMouseEvent<HTMLDivElement>) {
@@ -165,6 +176,67 @@ export default function Tokenomics() {
   const pulseRef = useRef<SVGCircleElement>(null);
   const pulseOuterRef = useRef<SVGCircleElement>(null);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  const [burned, setBurned] = useState<number>(FALLBACK_BURNED);
+
+  /* ── Fetch live burn data (shared source with BurnComponent) ── */
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchBurnData(controller.signal).then((result) => {
+      if (result.ok) {
+        setBurned(result.data.balance);
+      } else if (result.error !== "aborted") {
+        // eslint-disable-next-line no-console
+        console.warn("[Tokenomics] burn fetch failed:", result.error);
+      }
+    });
+    return () => controller.abort();
+  }, []);
+
+  /* ── Derived live distribution ── */
+  const burnPct = (burned / TOTAL_SUPPLY) * 100;
+  const segments = useMemo(() => buildSegments(burnPct), [burnPct]);
+  const segGeo = useMemo(() => buildSegGeo(segments), [segments]);
+  const maxPct = useMemo(
+    () => Math.max(...segments.map((s) => s.pct)),
+    [segments],
+  );
+  // Circulating tokens = total − burned − LP − staked.
+  // LP & staked are expressed as percentages of total supply, so
+  // multiply by (TOTAL_SUPPLY / 100) to get their token counts.
+  const circulatingTokens = useMemo(() => {
+    const lpTokens = (LP_PCT / 100) * TOTAL_SUPPLY;
+    const stakedTokens = (STAKED_PCT / 100) * TOTAL_SUPPLY;
+    return Math.max(0, TOTAL_SUPPLY - burned - lpTokens - stakedTokens);
+  }, [burned]);
+
+  const keyStats: {
+    label: string;
+    value: string;
+    sub: string;
+    target: number | null;
+  }[] = useMemo(
+    () => [
+      {
+        label: "Total Supply",
+        value: "1,000,000,000",
+        sub: "$MBP tokens",
+        target: TOTAL_SUPPLY,
+      },
+      {
+        label: "Circulating",
+        value: Math.round(circulatingTokens).toLocaleString(),
+        sub: "Available supply",
+        target: Math.round(circulatingTokens),
+      },
+      {
+        label: "Buy / Sell Tax",
+        value: "0% / 0%",
+        sub: "Zero-tax trading",
+        target: null,
+      },
+    ],
+    [circulatingTokens],
+  );
 
   /* ── Entrance + idle animations ── */
   useEffect(() => {
@@ -185,7 +257,7 @@ export default function Tokenomics() {
 
       /* ── Initial states ── */
       segs.forEach((seg, i) => {
-        gsap.set(seg, { strokeDashoffset: SEG_GEO[i].segLen });
+        gsap.set(seg, { strokeDashoffset: segGeo[i].segLen });
       });
       gsap.set(bars, { width: "0%" });
 
@@ -266,7 +338,7 @@ export default function Tokenomics() {
           seg,
           {
             strokeDashoffset: 0,
-            duration: 0.12 + SEG_GEO[i].pct * 0.0018,
+            duration: 0.12 + segGeo[i].pct * 0.0018,
             ease: "power3.out",
           },
           i === 0 ? "<+=0.02" : "<+=0.03",
@@ -447,10 +519,10 @@ export default function Tokenomics() {
       return;
     }
 
-    const seg = SEGMENTS[activeIdx];
+    const seg = segments[activeIdx];
 
     if (centerHoverValRef.current) {
-      centerHoverValRef.current.textContent = `${seg.pct}%`;
+      centerHoverValRef.current.textContent = `${seg.pct.toFixed(2)}%`;
       centerHoverValRef.current.style.color = seg.color;
     }
     if (centerHoverLabelRef.current) {
@@ -509,7 +581,7 @@ export default function Tokenomics() {
         },
       );
     }
-  }, [activeIdx]);
+  }, [activeIdx, segments]);
 
   return (
     <section
@@ -612,7 +684,7 @@ export default function Tokenomics() {
             className="order-2 lg:order-1 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3"
             style={{ perspective: 700 }}
           >
-            {KEY_STATS.map((stat) => (
+            {keyStats.map((stat) => (
               <div
                 key={stat.label}
                 onMouseMove={handleTilt}
@@ -726,7 +798,7 @@ export default function Tokenomics() {
                 />
 
                 {/* Segments */}
-                {SEG_GEO.map((d, i) => (
+                {segGeo.map((d, i) => (
                   <circle
                     key={i}
                     className="ring-seg"
@@ -768,7 +840,7 @@ export default function Tokenomics() {
                 />
 
                 {/* Segment boundary dots */}
-                {SEG_GEO.map((d, i) => {
+                {segGeo.map((d, i) => {
                   const a = ((d.startAngle + 90) * Math.PI) / 180 - Math.PI / 2;
                   return (
                     <circle
@@ -822,7 +894,7 @@ export default function Tokenomics() {
 
           {/* Right — Distribution legend */}
           <div className="order-3 space-y-1">
-            {SEGMENTS.map((seg, i) => {
+            {segments.map((seg, i) => {
               const isActive = activeIdx === i;
               return (
                 <div
@@ -870,7 +942,7 @@ export default function Tokenomics() {
                       className="font-beast text-sm tabular-nums transition-colors duration-300"
                       style={{ color: isActive ? seg.color : "#e8dcc8" }}
                     >
-                      {seg.pct}%
+                      {seg.pct.toFixed(2)}%
                     </span>
                   </div>
 
@@ -878,7 +950,7 @@ export default function Tokenomics() {
                   <div className="relative h-[3px] rounded-full bg-white/[0.04] overflow-hidden ml-5">
                     <div
                       className="tok-bar h-full rounded-full transition-[filter] duration-300"
-                      data-target={`${(seg.pct / MAX_PCT) * 100}%`}
+                      data-target={`${(seg.pct / maxPct) * 100}%`}
                       style={{
                         backgroundColor: seg.color,
                         filter: isActive

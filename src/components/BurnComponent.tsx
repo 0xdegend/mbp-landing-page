@@ -9,8 +9,24 @@ import {
 } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { fetchBurnData } from "@/lib/api/burn";
 
 gsap.registerPlugin(ScrollTrigger);
+
+/* ═══════════════════════════════════════════════════════
+   Burn math & formatting
+   ═══════════════════════════════════════════════════════ */
+const TOTAL_SUPPLY = 1_000_000_000;
+/** Fallback burn until the /api/burn call resolves */
+const FALLBACK_BURNED = 183_120_000;
+
+/** Compact number formatter: 183_342_735 → "183.34M" */
+function formatCompact(n: number): string {
+  if (n >= 1e9) return `${(n / 1e9).toFixed(2)}B`;
+  if (n >= 1e6) return `${(n / 1e6).toFixed(2)}M`;
+  if (n >= 1e3) return `${(n / 1e3).toFixed(2)}K`;
+  return Math.round(n).toString();
+}
 
 /* ═══════════════════════════════════════════════════════
    Ash burst on click
@@ -119,16 +135,11 @@ function BurnRing({
 
   useEffect(() => {
     if (!ref.current) return;
-    gsap.fromTo(
-      ref.current,
-      { strokeDashoffset: circ },
-      {
-        strokeDashoffset: circ * (1 - progress / 100),
-        duration: 2.5,
-        ease: "power2.out",
-        delay: 0.6,
-      },
-    );
+    gsap.to(ref.current, {
+      strokeDashoffset: circ * (1 - progress / 100),
+      duration: 2.5,
+      ease: "power2.out",
+    });
   }, [progress, circ]);
 
   return (
@@ -210,6 +221,27 @@ export default function BurnComponent() {
 
   const [emberIntensity, setEmberIntensity] = useState(1);
   const [isHot, setIsHot] = useState(false);
+  const [burned, setBurned] = useState<number>(FALLBACK_BURNED);
+
+  /* ── Fetch live burn data from /api/burn (proxied PandaSui) ── */
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchBurnData(controller.signal).then((result) => {
+      if (result.ok) {
+        setBurned(result.data.balance);
+      } else if (result.error !== "aborted") {
+        // eslint-disable-next-line no-console
+        console.warn("[BurnComponent] burn fetch failed:", result.error);
+      }
+    });
+    return () => controller.abort();
+  }, []);
+
+  /* ── Derived values ── */
+  const burnPct = (burned / TOTAL_SUPPLY) * 100;
+  const circulating = TOTAL_SUPPLY - burned;
+  const burnedLabel = formatCompact(burned);
+  const circulatingLabel = formatCompact(circulating);
 
   /* ── Furnace tilt ── */
   const handleFurnaceMove = useCallback(
@@ -414,11 +446,12 @@ export default function BurnComponent() {
         });
       }
 
-      /* Percent counter */
+      /* Percent counter — animates to whatever burnPct is when the
+         timeline kicks off (re-runs whenever live data updates). */
       if (percentRef.current) {
         const counter = { val: 0 };
         gsap.to(counter, {
-          val: 18.31,
+          val: burnPct,
           duration: 1.35,
           ease: "power2.out",
           delay: 0.2,
@@ -437,7 +470,7 @@ export default function BurnComponent() {
       /* Progress fill */
       if (progressFillRef.current) {
         gsap.to(progressFillRef.current, {
-          width: "18.31%",
+          width: `${burnPct}%`,
           duration: 1.2,
           ease: "power2.out",
           scrollTrigger: {
@@ -450,7 +483,7 @@ export default function BurnComponent() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [burnPct]);
 
   const stats: {
     label: string;
@@ -458,10 +491,15 @@ export default function BurnComponent() {
     suffix: string;
     accent: string;
   }[] = [
-    { label: "Total Burned", value: "183.12M", suffix: "", accent: "#e84d0e" },
+    {
+      label: "Total Burned",
+      value: burnedLabel,
+      suffix: "",
+      accent: "#e84d0e",
+    },
     {
       label: "Circulating Supply",
-      value: "625.2M",
+      value: circulatingLabel,
       suffix: "",
       accent: "#c0392b",
     },
@@ -527,7 +565,7 @@ export default function BurnComponent() {
                   Burn Progress
                 </span>
                 <span className="font-display text-[9px] tracking-[0.25em] uppercase text-scarlet/60">
-                  183.12M / 1B
+                  {burnedLabel} / 1B
                 </span>
               </div>
               <div className="relative h-1 overflow-hidden rounded-full bg-white/[0.04]">
@@ -592,7 +630,7 @@ export default function BurnComponent() {
               />
 
               {/* Ring */}
-              <BurnRing progress={18.31} size={280} stroke={2} />
+              <BurnRing progress={burnPct} size={280} stroke={2} />
 
               {/* Inner glow */}
               <div
@@ -694,14 +732,18 @@ export default function BurnComponent() {
                 <span className="font-display text-[7px] tracking-[0.3em] uppercase text-ash/25 block">
                   Burned
                 </span>
-                <span className="font-beast text-sm text-ember">183.12M</span>
+                <span className="font-beast text-sm text-ember">
+                  {burnedLabel}
+                </span>
               </div>
               <div className="w-px h-6 bg-white/[0.05]" />
               <div className="text-center">
                 <span className="font-display text-[7px] tracking-[0.3em] uppercase text-ash/25 block">
                   Alive
                 </span>
-                <span className="font-beast text-sm text-bone/60">625.2M</span>
+                <span className="font-beast text-sm text-bone/60">
+                  {circulatingLabel}
+                </span>
               </div>
             </div>
           </div>

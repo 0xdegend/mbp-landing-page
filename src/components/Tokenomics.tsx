@@ -241,7 +241,7 @@ export default function Tokenomics() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-          start: "top 65%",
+          start: "top 80%",
           once: true,
         },
       });
@@ -259,6 +259,40 @@ export default function Tokenomics() {
           immediateRender: false,
         },
       );
+
+      /* Ring segments draw on immediately after entry */
+      segs.forEach((seg, i) => {
+        tl.to(
+          seg,
+          {
+            strokeDashoffset: 0,
+            duration: 0.12 + SEG_GEO[i].pct * 0.0018,
+            ease: "power3.out",
+          },
+          i === 0 ? "<+=0.02" : "<+=0.03",
+        );
+      });
+
+      /* Shimmer sweep around ring after segments are drawn */
+      if (shimmerRef.current) {
+        const shimmer = shimmerRef.current;
+        tl.set(shimmer, { strokeDashoffset: 0, opacity: 0 }, ">-0.15");
+        tl.to(
+          shimmer,
+          { opacity: 0.55, duration: 0.08, ease: "power2.out" },
+          ">",
+        );
+        tl.to(
+          shimmer,
+          { strokeDashoffset: -CIRC, duration: 0.55, ease: "power2.out" },
+          "<",
+        );
+        tl.to(
+          shimmer,
+          { opacity: 0, duration: 0.15, ease: "power2.out" },
+          ">-0.2",
+        );
+      }
 
       /* Title characters — 3D tumble in */
       if (chars && chars.length) {
@@ -302,7 +336,7 @@ export default function Tokenomics() {
           obj,
           {
             val: target,
-            duration: 1.6,
+            duration: 1.2,
             ease: "power2.out",
             onUpdate: () => {
               el.textContent = Math.floor(obj.val).toLocaleString();
@@ -311,40 +345,6 @@ export default function Tokenomics() {
           "-=0.6",
         );
       });
-
-      /* Ring segments draw on sequentially — snappy power3 flick */
-      segs.forEach((seg, i) => {
-        tl.to(
-          seg,
-          {
-            strokeDashoffset: 0,
-            duration: 0.18 + SEG_GEO[i].pct * 0.003,
-            ease: "power3.out",
-          },
-          i === 0 ? "<+=0.05" : "<+=0.04",
-        );
-      });
-
-      /* Shimmer sweep around ring after segments are drawn */
-      if (shimmerRef.current) {
-        const shimmer = shimmerRef.current;
-        tl.set(shimmer, { strokeDashoffset: 0, opacity: 0 }, ">-0.15");
-        tl.to(
-          shimmer,
-          { opacity: 0.55, duration: 0.1, ease: "power2.out" },
-          ">",
-        );
-        tl.to(
-          shimmer,
-          { strokeDashoffset: -CIRC, duration: 0.7, ease: "power2.out" },
-          "<",
-        );
-        tl.to(
-          shimmer,
-          { opacity: 0, duration: 0.2, ease: "power2.out" },
-          ">-0.2",
-        );
-      }
 
       /* Center label — crack in */
       tl.fromTo(
@@ -387,7 +387,7 @@ export default function Tokenomics() {
       bars.forEach((bar) => {
         tl.to(
           bar,
-          { width: bar.dataset.target, duration: 0.55, ease: "power2.out" },
+          { width: bar.dataset.target, duration: 0.42, ease: "power2.out" },
           "<+=0.04",
         );
       });
@@ -399,7 +399,7 @@ export default function Tokenomics() {
         {
           opacity: 1,
           y: 0,
-          duration: 0.4,
+          duration: 0.32,
           stagger: 0.06,
           ease: "power3.out",
           immediateRender: false,

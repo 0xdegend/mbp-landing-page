@@ -419,9 +419,9 @@ export default function BurnComponent() {
         const counter = { val: 0 };
         gsap.to(counter, {
           val: 18.31,
-          duration: 2.5,
+          duration: 1.35,
           ease: "power2.out",
-          delay: 0.8,
+          delay: 0.2,
           scrollTrigger: {
             trigger: percentRef.current,
             start: "top 85%",
@@ -438,7 +438,7 @@ export default function BurnComponent() {
       if (progressFillRef.current) {
         gsap.to(progressFillRef.current, {
           width: "18.31%",
-          duration: 2.2,
+          duration: 1.2,
           ease: "power2.out",
           scrollTrigger: {
             trigger: progressFillRef.current,

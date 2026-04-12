@@ -56,6 +56,7 @@ export default function FinalCTA() {
   const holdTweenRef = useRef<gsap.core.Tween | null>(null);
   const holdStateRef = useRef({ p: 0 });
   const summonedRef = useRef(false);
+  const videoPrimedRef = useRef(false);
   const copyBtnRef = useRef<HTMLButtonElement>(null);
   const copyLabelRef = useRef<HTMLSpanElement>(null);
   const copyRippleRef = useRef<HTMLSpanElement>(null);
@@ -253,6 +254,19 @@ export default function FinalCTA() {
     { scope: sectionRef },
   );
 
+  /* ═══ Prime video on initial press so mobile browsers accept playback ═══ */
+  const primeVideoPlayback = useCallback(() => {
+    if (videoPrimedRef.current) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.currentTime = 0;
+    const p = video.play();
+    if (p && typeof p.catch === "function") p.catch(() => {});
+    videoPrimedRef.current = true;
+  }, []);
+
   /* ═══ Summon burst — fires when hold ritual completes ═══ */
   const triggerSummon = useCallback(() => {
     if (summonedRef.current) return;
@@ -299,9 +313,12 @@ export default function FinalCTA() {
     const video = videoRef.current;
     if (video) {
       video.muted = true;
-      video.currentTime = 0;
-      const p = video.play();
-      if (p && typeof p.catch === "function") p.catch(() => {});
+      if (!videoPrimedRef.current) {
+        video.currentTime = 0;
+        const p = video.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+        videoPrimedRef.current = true;
+      }
     }
     if (standingImageRef.current) {
       // Kill the idle breathing tween so it can't fight our fade
@@ -378,6 +395,7 @@ export default function FinalCTA() {
   const startHold = useCallback(() => {
     if (summonedRef.current) return;
     setIsHolding(true);
+    primeVideoPlayback();
 
     holdTweenRef.current?.kill();
     holdTweenRef.current = gsap.to(holdStateRef.current, {
@@ -393,7 +411,7 @@ export default function FinalCTA() {
         triggerSummon();
       },
     });
-  }, [triggerSummon]);
+  }, [primeVideoPlayback, triggerSummon]);
 
   const endHold = useCallback(() => {
     setIsHolding(false);

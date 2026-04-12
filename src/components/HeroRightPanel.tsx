@@ -18,12 +18,26 @@ export default function HeroRightPanel({
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    // React doesn't reliably reflect the `muted` prop as a DOM attribute,
-    // which causes mobile browsers to block autoplay. Set it imperatively.
-    video.muted = true;
-    video.play().catch(() => {
-      // Autoplay still blocked (e.g. low-power mode); silently ignore.
-    });
+
+    const tryPlay = () => {
+      video.muted = true;
+      video.defaultMuted = true;
+      video.playsInline = true;
+      video.play().catch(() => {
+        // Mobile browsers can still refuse the first attempt; keep it muted
+        // and let the browser retry once it has enough media data.
+      });
+    };
+
+    if (video.readyState >= 2) {
+      tryPlay();
+      return;
+    }
+
+    video.addEventListener("canplay", tryPlay, { once: true });
+    return () => {
+      video.removeEventListener("canplay", tryPlay);
+    };
   }, []);
 
   return (
@@ -63,7 +77,6 @@ export default function HeroRightPanel({
         style={{
           maxWidth: 520,
           width: "80%",
-          opacity: 0,
         }}
       >
         <div
@@ -90,17 +103,17 @@ export default function HeroRightPanel({
             loop
             muted
             playsInline
-            preload="metadata"
+            webkit-playsinline="true"
+            preload="auto"
             aria-label="ManBearPig breathing animation"
-          >
-            <source src="/breathing-beast.mp4" type="video/mp4" />
-          </video>
+            src="/breathing-beast.mp4"
+          />
         </div>
 
         <div
           ref={beastBadgeRef}
           className="absolute top-[12%] right-[5%] z-20 beast-badge-swing"
-          style={{ opacity: 0 }}
+          style={{ scale: "0" }}
         >
           <div className="warning-sign rounded-sm" style={{ width: 80 }}>
             <div

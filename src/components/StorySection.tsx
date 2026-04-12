@@ -374,7 +374,7 @@ export default function StorySection() {
               >
                 <video
                   ref={videoRef}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 hidden h-full w-full object-cover md:block"
                   playsInline
                   preload="auto"
                   poster="/story-poster.jpg"
@@ -383,11 +383,17 @@ export default function StorySection() {
                   <source src="/videos/mbp-video-1.mp4" type="video/mp4" />
                 </video>
 
+                <img
+                  src="/cover-image-video.png"
+                  alt="The legend of $MBP"
+                  className="absolute inset-0 h-full w-full object-cover md:hidden"
+                />
+
                 {isInView && (
                   <button
                     type="button"
                     onClick={handleEnableSound}
-                    className={`absolute top-4 right-4 z-20 rounded-full border px-4 py-2 font-display text-[9px] tracking-[0.3em] uppercase backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 ${
+                    className={`absolute top-4 right-4 z-20 hidden rounded-full border px-4 py-2 font-display text-[9px] tracking-[0.3em] uppercase backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 md:inline-flex ${
                       soundEnabled
                         ? "border-ember/35 bg-[#0a0d08]/92 text-ember hover:border-ember/55 hover:bg-[#0a0d08]/100"
                         : "border-scarlet/25 bg-[#0a0d08]/80 text-bone/90 hover:border-scarlet/45 hover:bg-[#0a0d08]/95"

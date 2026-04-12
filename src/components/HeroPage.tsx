@@ -170,15 +170,17 @@ export default function HeroPage() {
       );
 
       /* ── Phase 9: Beast emerges ──────────────────────────── */
-      tl.fromTo(
+      /* Avoid opacity:0 — mobile browsers treat opacity-hidden videos
+         as "not visible" and block autoplay. Instead use scale(0) which
+         keeps the element in the rendering tree so autoplay is allowed. */
+      gsap.set(beastCardRef.current, { scale: 0, y: 40 });
+      tl.to(
         beastCardRef.current,
-        { opacity: 0, scale: 0.9, y: 40 },
         {
-          opacity: 1,
           scale: 1,
           y: 0,
           duration: 1.2,
-          ease: "power3.out",
+          ease: "back.out(1.4)",
         },
         1.8,
       );
@@ -201,9 +203,9 @@ export default function HeroPage() {
       /* ── Phase 12: Beast WARNING badge swings in ─────────── */
       tl.fromTo(
         beastBadgeRef.current,
-        { opacity: 0, x: 30, rotation: -15 },
+        { scale: 0, x: 30, rotation: -15 },
         {
-          opacity: 1,
+          scale: 1,
           x: 0,
           rotation: 0,
           duration: 0.8,

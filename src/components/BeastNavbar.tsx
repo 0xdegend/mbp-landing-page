@@ -72,7 +72,7 @@ export default function BeastNavbar() {
               </div>
               <div>
                 <span className="font-beast text-xl text-bone tracking-wider">
-                  MAN<span className="text-scarlet">BEAR</span>PIG
+                  M<span className="text-scarlet">B</span>P
                 </span>
               </div>
             </div>

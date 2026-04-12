@@ -483,7 +483,10 @@ export default function FinalCTA() {
     if (addressCardRef.current) {
       gsap.fromTo(
         addressCardRef.current,
-        { boxShadow: "0 0 0 1px rgba(74,124,89,0.5), 0 0 24px rgba(74,124,89,0.35)" },
+        {
+          boxShadow:
+            "0 0 0 1px rgba(74,124,89,0.5), 0 0 24px rgba(74,124,89,0.35)",
+        },
         {
           boxShadow: "0 0 0 1px rgba(74,124,89,0), 0 0 0 rgba(74,124,89,0)",
           duration: 0.9,
@@ -867,7 +870,7 @@ export default function FinalCTA() {
               <video
                 ref={videoRef}
                 className="absolute inset-0 w-full h-full object-cover"
-                src="/videos/summon-beast.mp4"
+                src="/videos/summoning-beast.mp4"
                 loop
                 muted
                 playsInline

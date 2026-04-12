@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
 import type { HeroRightPanelRefs } from "./heroTypes";
 
@@ -15,30 +15,34 @@ export default function HeroRightPanel({
 }: HeroRightPanelRefs) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  const startVideo = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.playsInline = true;
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {
+        // iOS Low Power Mode can still block autoplay until the user taps.
+      });
+    }
+  }, []);
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const tryPlay = () => {
-      video.muted = true;
-      video.defaultMuted = true;
-      video.playsInline = true;
-      video.play().catch(() => {
-        // Mobile browsers can still refuse the first attempt; keep it muted
-        // and let the browser retry once it has enough media data.
-      });
-    };
-
     if (video.readyState >= 2) {
-      tryPlay();
+      startVideo();
       return;
     }
 
-    video.addEventListener("canplay", tryPlay, { once: true });
+    video.addEventListener("canplay", startVideo, { once: true });
     return () => {
-      video.removeEventListener("canplay", tryPlay);
+      video.removeEventListener("canplay", startVideo);
     };
-  }, []);
+  }, [startVideo]);
 
   return (
     <div
@@ -102,11 +106,14 @@ export default function HeroRightPanel({
             autoPlay
             loop
             muted
+            controls={false}
             playsInline
             webkit-playsinline="true"
             preload="auto"
             aria-label="ManBearPig breathing animation"
             src="/breathing-beast.mp4"
+            onTouchStart={startVideo}
+            onClick={startVideo}
           />
         </div>
 

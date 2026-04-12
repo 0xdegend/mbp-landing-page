@@ -90,6 +90,33 @@ function spawnParticles(origin: DOMRect) {
   }
 }
 
+async function copyTextToClipboard(text: string) {
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+
+  if (typeof document === "undefined") {
+    throw new Error("Clipboard API unavailable");
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "true");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  textarea.style.pointerEvents = "none";
+  document.body.appendChild(textarea);
+  textarea.select();
+  textarea.setSelectionRange(0, textarea.value.length);
+
+  const copied = document.execCommand("copy");
+  document.body.removeChild(textarea);
+
+  if (!copied) {
+    throw new Error("Copy command failed");
+  }
+}
+
 export default function ContractAddress() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -174,7 +201,8 @@ export default function ContractAddress() {
   const handleCopy = useCallback(() => {
     if (copied) return;
 
-    navigator.clipboard.writeText(CONTRACT_ADDRESS).then(() => {
+    copyTextToClipboard(CONTRACT_ADDRESS)
+      .then(() => {
       // Claw-strike button animation
       if (copyBtnRef.current) {
         gsap
@@ -250,7 +278,10 @@ export default function ContractAddress() {
 
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
-    });
+      })
+      .catch(() => {
+        // Keep the UI quiet if the browser blocks clipboard access.
+      });
   }, [copied]);
 
   /* ── Address hover scramble ──────────────────────────── */

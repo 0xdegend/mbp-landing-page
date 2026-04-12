@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
 import type { HeroRightPanelRefs } from "./heroTypes";
 
@@ -12,6 +13,19 @@ export default function HeroRightPanel({
   beastBadgeRef,
   beastEmberCanvasRef,
 }: HeroRightPanelRefs) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    // React doesn't reliably reflect the `muted` prop as a DOM attribute,
+    // which causes mobile browsers to block autoplay. Set it imperatively.
+    video.muted = true;
+    video.play().catch(() => {
+      // Autoplay still blocked (e.g. low-power mode); silently ignore.
+    });
+  }, []);
+
   return (
     <div
       ref={rightPanelRef}
@@ -65,6 +79,7 @@ export default function HeroRightPanel({
           } as CSSProperties}
         >
           <video
+            ref={videoRef}
             className="w-full h-auto"
             style={
               {

@@ -357,7 +357,7 @@ export default function StorySection() {
       {/* ── Pinned video stage ── */}
       <div
         ref={pinRef}
-        className="relative h-screen flex items-center justify-center"
+        className="relative lg:h-screen h-[80vh] flex items-center justify-center"
       >
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-10 items-center">
@@ -547,7 +547,7 @@ export default function StorySection() {
       </div>
 
       {/* ── Closing inscription ── */}
-      <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28 text-center">
+      <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-5 lg:py-28 text-center">
         <div className="story-reveal flex items-center justify-center gap-4 mb-6">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent to-scarlet/40" />
           <span className="font-beast text-xl text-scarlet">ManBearPig</span>

@@ -368,16 +368,27 @@ export default function Tokenomics() {
 
       /* Title characters — 3D tumble in */
       if (chars && chars.length) {
+        const isMobile = window.matchMedia("(max-width: 767px)").matches;
+
         tl.fromTo(
           chars,
-          { opacity: 0, y: 80, rotateX: -90 },
+          {
+            opacity: 0,
+            y: isMobile ? 18 : 34,
+            scale: 0.985,
+            rotateX: isMobile ? 0 : -22,
+            transformPerspective: 800,
+            transformOrigin: "50% 100%",
+          },
           {
             opacity: 1,
             y: 0,
+            scale: 1,
             rotateX: 0,
-            duration: 0.8,
-            stagger: 0.045,
-            ease: "back.out(1.7)",
+            duration: isMobile ? 0.9 : 1.05,
+            stagger: 0.025,
+            ease: "power3.out",
+            force3D: true,
             immediateRender: false,
           },
           "-=0.4",
@@ -638,7 +649,10 @@ export default function Tokenomics() {
           >
             <span
               className="inline-block text-bone"
-              style={{ transformStyle: "preserve-3d" }}
+              style={{
+                transformStyle: "preserve-3d",
+                backfaceVisibility: "hidden",
+              }}
             >
               {"TOKE".split("").map((ch, i) => (
                 <span
@@ -658,6 +672,7 @@ export default function Tokenomics() {
                 color: "transparent",
                 textShadow:
                   "0 0 30px rgba(192,57,43,0.2), 0 0 60px rgba(192,57,43,0.1)",
+                backfaceVisibility: "hidden",
               }}
             >
               {"NOMICS".split("").map((ch, i) => (

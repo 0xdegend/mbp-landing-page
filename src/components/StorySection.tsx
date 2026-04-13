@@ -70,19 +70,30 @@ export default function StorySection() {
       // ── Title characters ──
       const chars = titleRef.current?.querySelectorAll(".story-char");
       if (chars?.length) {
+        const isMobile = window.matchMedia("(max-width: 767px)").matches;
+
         gsap.fromTo(
           chars,
-          { opacity: 0, y: 80, rotateX: -90 },
+          {
+            opacity: 0,
+            y: isMobile ? 20 : 36,
+            scale: 0.985,
+            rotateX: isMobile ? 0 : -25,
+            transformPerspective: 800,
+            transformOrigin: "50% 100%",
+          },
           {
             opacity: 1,
             y: 0,
+            scale: 1,
             rotateX: 0,
-            duration: 0.8,
-            stagger: 0.04,
-            ease: "back.out(1.7)",
+            duration: isMobile ? 0.9 : 1.05,
+            stagger: 0.025,
+            ease: "power3.out",
+            force3D: true,
             scrollTrigger: {
               trigger: titleRef.current,
-              start: "top 80%",
+              start: "top 82%",
               once: true,
             },
           },
@@ -144,12 +155,6 @@ export default function StorySection() {
           { opacity: 0, scale: 0.5 },
           { opacity: 1, scale: 1, duration: 0.6, stagger: 0.05 },
           0.1,
-        )
-        .fromTo(
-          ".chapter-1",
-          { opacity: 0, y: 40 },
-          { opacity: 1, y: 0, duration: 0.8 },
-          0.2,
         )
         .to(".chapter-1", { opacity: 0, y: -40, duration: 0.6 }, 1.4)
         .fromTo(
@@ -297,7 +302,10 @@ export default function StorySection() {
           >
             <span
               className="inline-block text-bone"
-              style={{ transformStyle: "preserve-3d" }}
+              style={{
+                transformStyle: "preserve-3d",
+                backfaceVisibility: "hidden",
+              }}
             >
               {"THE ".split("").map((ch, i) => (
                 <span
@@ -317,6 +325,7 @@ export default function StorySection() {
                 color: "transparent",
                 textShadow:
                   "0 0 30px rgba(192,57,43,0.25), 0 0 60px rgba(192,57,43,0.12)",
+                backfaceVisibility: "hidden",
               }}
             >
               {"$MBP ".split("").map((ch, i) => (
@@ -331,7 +340,10 @@ export default function StorySection() {
             </span>
             <span
               className="inline-block text-bone"
-              style={{ transformStyle: "preserve-3d" }}
+              style={{
+                transformStyle: "preserve-3d",
+                backfaceVisibility: "hidden",
+              }}
             >
               {"STORY".split("").map((ch, i) => (
                 <span
@@ -493,7 +505,7 @@ export default function StorySection() {
                 <div
                   key={ch.num}
                   className={`chapter-${i + 1} absolute inset-0 flex flex-col justify-center`}
-                  style={{ opacity: 0 }}
+                  style={{ opacity: i === 0 ? 1 : 0 }}
                 >
                   <div className="max-w-lg rounded-2xl border border-moss/10 bg-black/10 px-5 py-6 backdrop-blur-sm lg:px-7 lg:py-8">
                     <div className="flex items-center gap-3 mb-4">

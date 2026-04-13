@@ -63,7 +63,7 @@ export const metadata: Metadata = {
       "Half Man. Half Bear. Half Pig. 100% Chaos. The legendary meme beast forged on Sui — a force of nature the chain can barely contain.",
     images: [
       {
-        url: `${BASE_URL}/images/og-image.jpg`,
+        url: `${BASE_URL}/images/og-image.png`,
         width: 1200,
         height: 630,
         alt: "ManBearPig ($MBP) — The Beast of Sui",

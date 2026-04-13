@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { gsap } from "gsap";
 import Image from "next/image";
 
@@ -8,6 +8,7 @@ export default function BeastNavbar() {
   const logoRef = useRef<HTMLDivElement>(null);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("Origin");
 
   useEffect(() => {
     // Entrance animation
@@ -20,17 +21,68 @@ export default function BeastNavbar() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
+
+    const sectionLinks = [
+      { label: "Origin", href: "#lore" },
+      { label: "Ecosystem", href: "#ecosystem" },
+      { label: "Burn", href: "#burn" },
+      { label: "Tokenomics", href: "#tokenomics" },
+      { label: "Alliance", href: "#alliance" },
+    ] as const;
+
+    const sectionIds = sectionLinks.map((link) => link.href);
+
+    let rafId = 0;
+    const handleActiveSection = () => {
+      cancelAnimationFrame(rafId);
+      rafId = window.requestAnimationFrame(() => {
+        const navbarOffset = 88;
+        let current = "Origin";
+
+        for (const id of sectionIds) {
+          const el = document.querySelector(id);
+          if (!el) continue;
+
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= navbarOffset && rect.bottom > navbarOffset) {
+            current =
+              sectionLinks.find((link) => link.href === id)?.label ?? current;
+            break;
+          }
+
+          if (rect.top <= navbarOffset + 160) {
+            current =
+              sectionLinks.find((link) => link.href === id)?.label ?? current;
+          }
+        }
+
+        setActiveSection(current);
+      });
+    };
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleActiveSection, { passive: true });
+    window.addEventListener("resize", handleActiveSection);
+    handleActiveSection();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", handleActiveSection);
+      window.removeEventListener("resize", handleActiveSection);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
-  const navLinks = [
+  const navLinks = useMemo(
+    () => [
     { label: "Origin", href: "#lore" },
     { label: "Ecosystem", href: "#ecosystem" },
     { label: "Burn", href: "#burn" },
     { label: "Tokenomics", href: "#tokenomics" },
     { label: "Alliance", href: "#alliance" },
-  ];
+    ],
+    [],
+  );
 
   const scrollTo = (id: string) => {
     const el = document.querySelector(id);
@@ -79,16 +131,26 @@ export default function BeastNavbar() {
 
             {/* Desktop Nav */}
             <div className="hidden lg:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <button
-                  key={link.href}
-                  onClick={() => scrollTo(link.href)}
-                  className="font-display text-sm font-500 tracking-widest uppercase text-ash hover:text-bone transition-colors duration-200 relative group"
-                >
-                  {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-scarlet group-hover:w-full transition-all duration-300" />
-                </button>
-              ))}
+                {navLinks.map((link) => (
+                  <button
+                    key={link.href}
+                    onClick={() => scrollTo(link.href)}
+                    className={`font-display text-sm font-500 tracking-widest uppercase transition-colors duration-200 relative group ${
+                      activeSection === link.label
+                        ? "text-bone"
+                        : "text-ash hover:text-bone"
+                    }`}
+                  >
+                    {link.label}
+                    <span
+                      className={`absolute -bottom-1 left-0 h-px bg-scarlet transition-all duration-300 ${
+                        activeSection === link.label
+                          ? "w-full"
+                          : "w-0 group-hover:w-full"
+                      }`}
+                    />
+                  </button>
+                ))}
             </div>
 
             {/* CTA + Mobile Menu */}
@@ -133,7 +195,11 @@ export default function BeastNavbar() {
               <button
                 key={link.href}
                 onClick={() => scrollTo(link.href)}
-                className="font-display text-sm tracking-widest uppercase text-bone text-left py-2 border-b border-forest-green/20"
+                className={`font-display text-sm tracking-widest uppercase text-left py-2 border-b transition-colors duration-200 ${
+                  activeSection === link.label
+                    ? "text-bone border-scarlet/55"
+                    : "text-bone border-forest-green/20"
+                }`}
               >
                 {link.label}
               </button>

@@ -75,8 +75,8 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    site: "@ManBearPigSui", // ← replace with real handle
-    creator: "@ManBearPigSui",
+    site: "@ManBearPig_25", // ← replace with real handle
+    creator: "@ManBearPig_25",
     title: "ManBearPig ($MBP) — The Beast of Sui",
     description:
       "Half Man. Half Bear. Half Pig. 100% Chaos. The legendary meme beast forged on Sui.",
@@ -144,8 +144,8 @@ export default function RootLayout({
                 "Half Man. Half Bear. Half Pig. 100% Chaos. The legendary meme beast forged on the Sui blockchain.",
               url: BASE_URL,
               sameAs: [
-                "https://x.com/ManBearPigSui", // ← replace with real URLs
-                "https://t.me/ManBearPigSui",
+                "https://x.com/@ManBearPig_25", // ← replace with real URLs
+                "https://t.me/manbearpig_25",
               ],
             }),
           }}

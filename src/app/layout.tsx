@@ -23,7 +23,7 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
-const BASE_URL = "https://mbp-landing-page.vercel.app/"; // ← replace with your live domain
+const BASE_URL = "https://mbp-landing-page.vercel.app"; // ← replace with your live domain
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),

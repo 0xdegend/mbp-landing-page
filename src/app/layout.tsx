@@ -23,7 +23,7 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
-const BASE_URL = "https://www.manbearpig.live"; // ← replace with your live domain
+const BASE_URL = "https://mbp-landing-page.vercel.app/"; // ← replace with your live domain
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
       "Half Man. Half Bear. Half Pig. 100% Chaos. The legendary meme beast forged on Sui — a force of nature the chain can barely contain.",
     images: [
       {
-        url: `${BASE_URL}/images/og-image.png`,
+        url: `${BASE_URL}/images/og-image.jpg`,
         width: 1200,
         height: 630,
         alt: "ManBearPig ($MBP) — The Beast of Sui",

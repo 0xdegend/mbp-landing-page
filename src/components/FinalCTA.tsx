@@ -851,7 +851,12 @@ export default function FinalCTA() {
 
             {/* CTA row */}
             <div className="cta-reveal flex flex-wrap gap-3">
-              <button className="btn-beast btn-beast-primary text-sm px-7 py-3.5">
+              <a
+                className="btn-beast btn-beast-primary text-sm px-7 py-3.5"
+                href="https://app.cetus.zone/swap/0x2::sui::SUI/0x4d68a38f0c7abcea02106da3bab76f5e6b0b242c100746eb1ef9692cd1129d25::mbp::MBP"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <span className="btn-edge-bar" />
                 <span className="btn-paw">
                   <svg
@@ -868,10 +873,15 @@ export default function FinalCTA() {
                   </svg>
                 </span>
                 <span className="btn-text">Buy $MBP</span>
-              </button>
-              <button className="btn-beast btn-beast-outline text-sm px-7 py-3.5">
+              </a>
+              <a
+                className="btn-beast btn-beast-outline text-sm px-7 py-3.5"
+                href="https://t.me/manbearpig_25"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <span className="btn-text">Join the Pack</span>
-              </button>
+              </a>
             </div>
           </div>
 

@@ -38,6 +38,9 @@ const SPARKS = [
   { cx: 68, cy: 44, r: 0.4 },
 ];
 
+const BUY_URL =
+  "https://app.cetus.zone/swap/0x2::sui::SUI/0x4d68a38f0c7abcea02106da3bab76f5e6b0b242c100746eb1ef9692cd1129d25::mbp::MBP";
+
 /* ═══════════════════════════════════════════════════════
    Beast Maw — corner fangs, lurking eyes, heartbeat & roar
    A living layer of micro-interactions bound to the primary
@@ -608,10 +611,12 @@ export default function HeroLeftPanel({
       </p>
 
       <div ref={ctaRef} className="flex flex-wrap gap-4" style={{ opacity: 0 }}>
-        <button
+        <a
           ref={primaryBtnRef}
           className="btn-beast btn-beast-primary"
-          onClick={() => scrollToSection("#summon")}
+          href={BUY_URL}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <ClawScratches />
           <span className="btn-edge-bar" />
@@ -627,7 +632,7 @@ export default function HeroLeftPanel({
             </svg>
           </span>
           <span className="btn-text">Buy $MBP</span>
-        </button>
+        </a>
 
         <button
           ref={outlineBtnRef}

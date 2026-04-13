@@ -19,7 +19,7 @@ export type HeroLeftPanelRefs = {
   taglineRef: RefObject<HTMLParagraphElement>;
   microcopyRef: RefObject<HTMLParagraphElement>;
   ctaRef: RefObject<HTMLDivElement>;
-  primaryBtnRef: RefObject<HTMLButtonElement>;
+  primaryBtnRef: RefObject<HTMLAnchorElement>;
   primaryCanvasRef: RefObject<HTMLCanvasElement>;
   outlineBtnRef: RefObject<HTMLButtonElement>;
 };

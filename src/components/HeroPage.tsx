@@ -25,7 +25,7 @@ export default function HeroPage() {
   const layer1Ref = useRef<HTMLDivElement>(null);
   const layer2Ref = useRef<HTMLDivElement>(null);
   const layer3Ref = useRef<HTMLDivElement>(null);
-  const primaryBtnRef = useRef<HTMLButtonElement>(null);
+  const primaryBtnRef = useRef<HTMLAnchorElement>(null);
   const primaryCanvasRef = useRef<HTMLCanvasElement>(null);
   const outlineBtnRef = useRef<HTMLButtonElement>(null);
   const rightPanelRef = useRef<HTMLDivElement>(null);
@@ -375,7 +375,7 @@ export default function HeroPage() {
     setupEmbers();
 
     /* ── 2. Text scramble (primary button) ─────────────── */
-    const setupScramble = (btn: HTMLButtonElement | null) => {
+    const setupScramble = (btn: HTMLElement | null) => {
       if (!btn) return;
       const textEl = btn.querySelector(".btn-text") as HTMLElement;
       if (!textEl) return;
@@ -419,7 +419,7 @@ export default function HeroPage() {
     setupScramble(primaryBtnRef.current);
 
     /* ── 3. Magnetic hover + click spring (both) ───────── */
-    const setupMagnetic = (btn: HTMLButtonElement | null) => {
+    const setupMagnetic = (btn: HTMLElement | null) => {
       if (!btn) return;
       const move = (e: MouseEvent) => {
         const rect = btn.getBoundingClientRect();

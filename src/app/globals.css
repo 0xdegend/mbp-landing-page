@@ -40,6 +40,10 @@ body {
   cursor: default;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

@@ -128,7 +128,7 @@ export default function BeastNavbar() {
             menuOpen ? "max-h-96 border-t border-forest-green/30" : "max-h-0"
           }`}
         >
-          <div className="bg-forest-black/98 px-6 py-4 flex flex-col gap-4">
+          <div className="bg-forest-black/95 backdrop-blur-md shadow-sm shadow-black/50 px-6 py-4 flex flex-col gap-4">
             {navLinks.map((link) => (
               <button
                 key={link.href}

@@ -381,7 +381,7 @@ export default function HeroBackdrop({
               AREA
             </p>
           </div>
-          <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-2 bg-[#5a3a20] h-16" />
+          <div className="hidden lg:block absolute -bottom-16 left-1/2 -translate-x-1/2 w-2 bg-[#5a3a20] h-16" />
         </div>
       </div>
     </>

@@ -86,14 +86,16 @@ export default function HeroRightPanel({
         <div
           ref={beastRef}
           className="relative beast-video-wrap-v2"
-          style={{
-            WebkitMaskImage:
-              "linear-gradient(to bottom, transparent 0%, black 15%, black 80%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)",
-            WebkitMaskComposite: "destination-in",
-            maskImage:
-              "linear-gradient(to bottom, transparent 0%, black 15%, black 80%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)",
-            maskComposite: "intersect",
-          } as CSSProperties}
+          style={
+            {
+              WebkitMaskImage:
+                "linear-gradient(to bottom, transparent 0%, black 15%, black 80%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)",
+              WebkitMaskComposite: "destination-in",
+              maskImage:
+                "linear-gradient(to bottom, transparent 0%, black 15%, black 80%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)",
+              maskComposite: "intersect",
+            } as CSSProperties
+          }
         >
           <video
             ref={videoRef}

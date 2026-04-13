@@ -27,6 +27,7 @@ const NOODLES_URL =
 const COINMUM_URL = "https://coinmun.com/coins/manbearpig-1";
 const AFTERMATH_URL =
   "https://aftermath.finance/farms/0xf09c59df4f57add24e73037a2a920e7d5c8bf6e0ae819f53e397c504cf230d25";
+const DEXTOOLS_URL = "https://www.dextools.io/app/token/mbp";
 
 /* ═══════════════════════════════════════════════════════
    Hooks
@@ -1022,6 +1023,19 @@ function ListingCard({
             delay: 0.4,
           });
         }
+      } else if (title === "DEXTOOLS") {
+        // Chart line: gentle pulse to mimic live market motion
+        const paths = svg.querySelectorAll("path");
+        paths.forEach((p, i) => {
+          gsap.to(p, {
+            opacity: i === 0 ? 0.55 : 1,
+            duration: 0.9 + i * 0.15,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            delay: i * 0.12,
+          });
+        });
       }
     }
   }, [title]);
@@ -1040,17 +1054,17 @@ function ListingCard({
         rel="noopener noreferrer"
         className="block h-full"
       >
-        <div className="relative bg-[#0a0e08]/80 backdrop-blur-sm rounded-lg p-6 h-full flex flex-col border border-white/[0.04] transition-colors duration-500 overflow-hidden hover:border-white/[0.08]">
+        <div className="relative bg-[#0a0e08]/80 backdrop-blur-sm rounded-lg p-5 h-full flex flex-col border border-white/[0.04] transition-colors duration-500 overflow-hidden hover:border-white/[0.08]">
           <div
             className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-current to-transparent opacity-30"
             style={{ color: accent }}
           />
           <GlowLine color={accent} />
 
-          <div className="flex items-center gap-3 mb-5">
+          <div className="flex items-center gap-3 mb-4">
             <div
               ref={listingIconRef}
-              className="w-9 h-9 rounded-md flex items-center justify-center"
+              className="w-8 h-8 rounded-md flex items-center justify-center"
               style={{
                 background: `${accent}1a`,
                 border: `1px solid ${accent}33`,
@@ -1060,7 +1074,7 @@ function ListingCard({
               {icon}
             </div>
             <div>
-              <h3 className="font-beast text-lg text-bone leading-none">
+              <h3 className="font-beast text-[17px] text-bone leading-none">
                 {title}
               </h3>
               <p className="font-display text-[9px] tracking-[0.2em] uppercase text-moss mt-0.5">
@@ -1070,7 +1084,7 @@ function ListingCard({
           </div>
 
           <div
-            className="relative mb-5 flex-1 min-h-[108px] overflow-hidden rounded-md p-4"
+            className="relative mb-4 flex-1 min-h-[96px] overflow-hidden rounded-md p-3.5"
             style={{
               background: "rgba(10,13,8,0.5)",
               border: `1px solid ${accent}14`,
@@ -1099,7 +1113,7 @@ function ListingCard({
 
             <div className="relative h-full flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="font-display text-[9px] tracking-[0.2em] uppercase text-ash/40">
+                <span className="font-display text-[8px] tracking-[0.2em] uppercase text-ash/40">
                   Listing
                 </span>
                 <span
@@ -1114,18 +1128,18 @@ function ListingCard({
                 </span>
               </div>
 
-              <div className="flex items-end justify-between gap-4">
-                <p className="font-body text-sm text-bone/80 leading-relaxed max-w-[14rem]">
+              <div className="flex items-end justify-between gap-3">
+                <p className="font-body text-[13px] text-bone/80 leading-relaxed max-w-[13rem]">
                   {description}
                 </p>
                 <div
-                  className="eco-block w-12 h-12 rounded-md flex items-center justify-center shrink-0"
+                  className="eco-block w-11 h-11 rounded-md flex items-center justify-center shrink-0"
                   style={{
                     background: `${accent}10`,
                     border: `1px solid ${accent}1f`,
                   }}
                 >
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path
                       d="M5 19L19 5M9 5h10v10"
                       stroke={accent}
@@ -1141,11 +1155,11 @@ function ListingCard({
 
           <div className="mt-auto flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="font-display text-[8px] tracking-[0.2em] uppercase text-ash/40">
+              <span className="font-display text-[8px] tracking-[0.18em] uppercase text-ash/40">
                 Open
               </span>
               <span
-                className="font-display text-[10px] tracking-wider font-semibold"
+                className="font-display text-[9px] tracking-wider font-semibold"
                 style={{ color: accent }}
               >
                 {ctaLabel}
@@ -1155,12 +1169,12 @@ function ListingCard({
               className="flex items-center gap-1.5 transition-colors duration-300 group-hover:text-bone"
               style={{ color: `${accent}b3` }}
             >
-              <span className="font-display text-[10px] tracking-widest uppercase">
+              <span className="font-display text-[9px] tracking-widest uppercase">
                 Launch
               </span>
               <svg
-                width="14"
-                height="14"
+                width="13"
+                height="13"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -1234,7 +1248,7 @@ export default function Ecosystem() {
         }}
       />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
         <div
           ref={titleRef}
@@ -1273,7 +1287,7 @@ export default function Ecosystem() {
             <div className="h-px flex-1 max-w-[70px] bg-gradient-to-l from-transparent to-ember/40" />
           </div>
 
-          <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             <ListingCard
               href={NOODLES_URL}
               label="DEX Listing"
@@ -1348,6 +1362,35 @@ export default function Ecosystem() {
                   <path d="M4 18h16" />
                   <path d="M6 18V7l6-3 6 3v11" />
                   <path d="M9 18v-5h6v5" />
+                </svg>
+              }
+            />
+
+            <ListingCard
+              href={DEXTOOLS_URL}
+              label="Charting"
+              title="DEXTOOLS"
+              description="Watch live price action, liquidity, and chart momentum on Dextools."
+              badge="Chart"
+              ctaLabel="View Chart"
+              accent="#d4af37"
+              icon={
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4 19h16" />
+                  <path d="M6 16l4-5 4 3 4-7" />
+                  <circle cx="6" cy="16" r="1" />
+                  <circle cx="10" cy="11" r="1" />
+                  <circle cx="14" cy="14" r="1" />
+                  <circle cx="18" cy="7" r="1" />
                 </svg>
               }
             />

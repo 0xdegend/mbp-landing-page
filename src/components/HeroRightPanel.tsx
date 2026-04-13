@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
+import { gsap } from "gsap";
 import type { HeroRightPanelRefs } from "./heroTypes";
 
 export default function HeroRightPanel({
@@ -14,6 +15,7 @@ export default function HeroRightPanel({
   beastEmberCanvasRef,
 }: HeroRightPanelRefs) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   const startVideo = useCallback(() => {
     const video = videoRef.current;
@@ -33,6 +35,8 @@ export default function HeroRightPanel({
     const video = videoRef.current;
     if (!video) return;
 
+    if (window.matchMedia("(max-width: 767px)").matches) return;
+
     if (video.readyState >= 2) {
       startVideo();
       return;
@@ -43,6 +47,41 @@ export default function HeroRightPanel({
       video.removeEventListener("canplay", startVideo);
     };
   }, [startVideo]);
+
+  useEffect(() => {
+    const image = imageRef.current;
+    if (!image) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (prefersReducedMotion) return;
+
+    const tween = gsap.fromTo(
+      image,
+      {
+        scale: 1,
+        y: 0,
+        rotate: 0,
+        filter: "brightness(0.94) saturate(0.96) contrast(1.01)",
+      },
+      {
+        scale: 1.04,
+        y: -8,
+        rotate: 0.35,
+        filter: "brightness(1.04) saturate(1.08) contrast(1.03)",
+        duration: 4.8,
+        ease: "sine.inOut",
+        repeat: -1,
+        yoyo: true,
+        transformOrigin: "50% 56%",
+      },
+    );
+
+    return () => {
+      tween.kill();
+    };
+  }, []);
 
   return (
     <div
@@ -99,7 +138,7 @@ export default function HeroRightPanel({
         >
           <video
             ref={videoRef}
-            className="w-full h-auto"
+            className="!hidden w-full h-auto md:!block"
             style={
               {
                 transition: "filter 0.3s ease",
@@ -116,6 +155,14 @@ export default function HeroRightPanel({
             src="/breathing-beast.mp4"
             onTouchStart={startVideo}
             onClick={startVideo}
+          />
+          <img
+            ref={imageRef}
+            src="/images/hero-page-img.jpg"
+            alt="ManBearPig hero artwork"
+            className="block w-full h-auto md:hidden"
+            style={{ willChange: "transform, filter" }}
+            draggable={false}
           />
         </div>
 

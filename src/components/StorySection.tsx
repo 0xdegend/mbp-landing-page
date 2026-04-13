@@ -9,21 +9,21 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 const CHAPTERS = [
   {
     num: "01",
-    title: "The Mist",
-    tag: "Primordial Origins",
-    body: "From the blackened forests of Sui, where the pines grow old and the mountains never sleep, a mist began to gather. Ancient. Hungry. Waiting.",
+    title: "The Chaos Awakens",
+    tag: "Meme Origins",
+    body: "In the misty swamps of the internet, where crypto memes roam wild, a legendary creature was born from pure chaos and South Park lore. Half man, half bear, half pig ManBearPig rose as an absurd force of nature.",
   },
   {
     num: "02",
-    title: "The Convergence",
-    tag: "Three Become One",
-    body: "Man's cunning. Bear's might. Pig's insatiable hunger. Three forces collided in the mist, and something ancient stirred beneath the chain.",
+    title: "The Beast of SUI",
+    tag: "Summoned by Degens",
+    body: "Degen builders and meme lords on Sui wanted a mascot that was loud, strange, and unforgettable. So they summoned $MBP not a cute mascot, but a ridiculous hybrid beast built to stand out.",
   },
   {
     num: "03",
-    title: "The Awakening",
-    tag: "The Beast Emerges",
-    body: "The blockchain trembled. The forest went silent. ManBearPig was born — a force of nature the chain could barely contain. The legend begins now.",
+    title: "Send It Higher",
+    tag: "Culture in Motion",
+    body: "Backed by community energy, diamond hands, and relentless higher we go vibes, $MBP became one of the top memes on Sui. It is not here to save the world  it is here to send it.",
   },
 ];
 
@@ -201,7 +201,6 @@ export default function StorySection() {
         end: "+=2400",
         onEnter: () => {
           setIsInView(true);
-          video.currentTime = 0;
           tryPlay();
         },
         onEnterBack: () => {
@@ -211,12 +210,10 @@ export default function StorySection() {
         onLeave: () => {
           setIsInView(false);
           video.pause();
-          video.currentTime = 0;
         },
         onLeaveBack: () => {
           setIsInView(false);
           video.pause();
-          video.currentTime = 0;
         },
       });
     },
@@ -360,11 +357,12 @@ export default function StorySection() {
         className="relative lg:h-screen h-[80vh] flex items-center justify-center"
       >
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-10 items-center">
+          <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(420px,0.95fr)] gap-8 lg:gap-14 items-center">
             {/* ── Video frame ── */}
-            <div className="relative">
+            <div className="relative mx-auto w-full max-w-[440px]">
               <div
-                className="story-video-frame relative aspect-video w-full overflow-hidden rounded-lg"
+                className="story-video-frame relative overflow-hidden rounded-lg bg-black
+               aspect-[16/9] md:aspect-[9/16]"
                 style={{
                   background:
                     "linear-gradient(135deg, #0a0d08 0%, #0d1a0e 100%)",
@@ -380,7 +378,7 @@ export default function StorySection() {
                   poster="/story-poster.jpg"
                   aria-label="The legend of $MBP"
                 >
-                  <source src="/videos/mbp-video-1.mp4" type="video/mp4" />
+                  <source src="/videos/mbp-story.mp4" type="video/mp4" />
                 </video>
 
                 <img
@@ -490,54 +488,58 @@ export default function StorySection() {
             </div>
 
             {/* ── Chapter text (animated in/out) ── */}
-            <div className="relative min-h-[260px] lg:min-h-[340px]">
+            <div className="relative min-h-[300px] lg:min-h-[360px] lg:pl-4">
               {CHAPTERS.map((ch, i) => (
                 <div
                   key={ch.num}
                   className={`chapter-${i + 1} absolute inset-0 flex flex-col justify-center`}
                   style={{ opacity: 0 }}
                 >
-                  <div className="flex items-center gap-3 mb-4">
-                    <span
-                      className="font-beast text-5xl lg:text-6xl"
-                      style={{
-                        WebkitTextStroke: "1.5px #c0392b",
-                        color: "transparent",
-                      }}
-                    >
-                      {ch.num}
-                    </span>
-                    <div className="flex-1 h-px bg-gradient-to-r from-scarlet/50 to-transparent" />
-                  </div>
-                  <div className="font-display text-[10px] tracking-[0.35em] uppercase text-scarlet/80 mb-2">
-                    {ch.tag}
-                  </div>
-                  <h3 className="font-beast text-3xl lg:text-4xl text-bone mb-4 leading-[0.95]">
-                    {ch.title}
-                  </h3>
-                  <p className="font-body text-sm lg:text-base text-ash/70 leading-relaxed max-w-sm">
-                    {ch.body}
-                  </p>
-
-                  {/* Chapter index dots */}
-                  <div className="flex gap-2 mt-6">
-                    {CHAPTERS.map((_, j) => (
-                      <div
-                        key={j}
-                        className="h-[2px] rounded-full transition-all duration-500"
+                  <div className="max-w-lg rounded-2xl border border-moss/10 bg-black/10 px-5 py-6 backdrop-blur-sm lg:px-7 lg:py-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span
+                        className="font-beast text-5xl lg:text-6xl"
                         style={{
-                          width: j === i ? 24 : 10,
-                          backgroundColor:
-                            j === i
-                              ? "#c0392b"
-                              : j < i
-                                ? "rgba(192,57,43,0.4)"
-                                : "rgba(232,220,200,0.15)",
-                          boxShadow:
-                            j === i ? "0 0 8px rgba(192,57,43,0.6)" : "none",
+                          WebkitTextStroke: "1.5px #c0392b",
+                          color: "transparent",
                         }}
-                      />
-                    ))}
+                      >
+                        {ch.num}
+                      </span>
+                      <div className="flex-1 h-px bg-gradient-to-r from-scarlet/50 to-transparent" />
+                    </div>
+                    <div className="font-display text-[10px] tracking-[0.35em] uppercase text-scarlet/80 mb-2">
+                      {ch.tag}
+                    </div>
+                    <h3 className="font-beast text-3xl lg:text-4xl text-bone mb-4 leading-[0.95]">
+                      {ch.title}
+                    </h3>
+                    <p className="font-body text-base lg:text-lg text-ash/72 leading-relaxed max-w-[36ch] lg:max-w-[40ch]">
+                      {ch.body}
+                    </p>
+
+                    {/* Chapter index dots */}
+                    <div className="flex gap-2 mt-6">
+                      {CHAPTERS.map((_, j) => (
+                        <div
+                          key={j}
+                          className="h-[2px] rounded-full transition-all duration-500"
+                          style={{
+                            width: j === i ? 24 : 10,
+                            backgroundColor:
+                              j === i
+                                ? "#c0392b"
+                                : j < i
+                                  ? "rgba(192,57,43,0.4)"
+                                  : "rgba(232,220,200,0.15)",
+                            boxShadow:
+                              j === i
+                                ? "0 0 8px rgba(192,57,43,0.6)"
+                                : "none",
+                          }}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               ))}

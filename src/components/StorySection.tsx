@@ -533,9 +533,7 @@ export default function StorySection() {
                                   ? "rgba(192,57,43,0.4)"
                                   : "rgba(232,220,200,0.15)",
                             boxShadow:
-                              j === i
-                                ? "0 0 8px rgba(192,57,43,0.6)"
-                                : "none",
+                              j === i ? "0 0 8px rgba(192,57,43,0.6)" : "none",
                           }}
                         />
                       ))}

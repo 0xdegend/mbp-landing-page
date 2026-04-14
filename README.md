@@ -2,8 +2,6 @@
 
 > Half Man. Half Bear. Half Pig. 100% Chaos.
 
-A premium, cinematic meme landing page for the ManBearPig ($MBP) token on the Sui ecosystem. Built with Next.js 16, TypeScript, Tailwind CSS, and GSAP for animations.
-
 ---
 
 ## 🚀 Getting Started

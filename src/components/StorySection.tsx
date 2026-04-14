@@ -23,7 +23,7 @@ const CHAPTERS = [
     num: "03",
     title: '"Higher we go"',
     tag: "Culture in Motion",
-    body: "Backed by community energy, diamond hands, and relentless higher we go vibes, $MBP became one of the top memes on Sui. It is not here to save the world  it is here to send it.",
+    body: 'Backed by community energy, diamond hands, and relentless "higher we go" vibes, $MBP became one of the top memes on Sui. It is not here to save the world  it is here to send it.',
   },
 ];
 

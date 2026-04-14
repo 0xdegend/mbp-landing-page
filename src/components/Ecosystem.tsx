@@ -24,7 +24,7 @@ const SUISCAN_URL =
   "https://suiscan.xyz/mainnet/coin/0x4d68a38f0c7abcea02106da3bab76f5e6b0b242c100746eb1ef9692cd1129d25::mbp::MBP";
 const NOODLES_URL =
   "https://noodles.fi/coins/0x4d68a38f0c7abcea02106da3bab76f5e6b0b242c100746eb1ef9692cd1129d25::mbp::MBP";
-const COINMUM_URL = "https://coinmun.com/coins/manbearpig-1";
+const COINMUN_URL = "https://coinmun.com/coins/manbearpig-1";
 const AFTERMATH_URL =
   "https://aftermath.finance/farms/0xf09c59df4f57add24e73037a2a920e7d5c8bf6e0ae819f53e397c504cf230d25";
 const DEXTOOLS_URL = "https://www.dextools.io/app/token/mbp";
@@ -963,7 +963,7 @@ function ListingCard({
             delay: i * 0.2,
           });
         });
-      } else if (title === "COINMUM") {
+      } else if (title === "COINMUN") {
         // Coin: circle gentle spin + cross pulse
         const circle = svg.querySelector("circle");
         const lines = svg.querySelectorAll("path");
@@ -1287,7 +1287,7 @@ export default function Ecosystem() {
             <div className="h-px flex-1 max-w-[70px] bg-gradient-to-l from-transparent to-ember/40" />
           </div>
 
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             <ListingCard
               href={NOODLES_URL}
               label="DEX Listing"
@@ -1315,10 +1315,10 @@ export default function Ecosystem() {
             />
 
             <ListingCard
-              href={COINMUM_URL}
+              href={COINMUN_URL}
               label="Market Page"
-              title="COINMUM"
-              description="Vote for $MBP on Coinmum to boost visibility."
+              title="COINMUN"
+              description="Vote for $MBP on Coinmun to boost visibility."
               badge="Track"
               ctaLabel="Go Vote"
               accent="#c0392b"

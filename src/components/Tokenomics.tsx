@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { fetchBurnData } from "@/lib/api/burn";
-
+import { fetchCoinData } from "@/lib/api/coin";
+import { Aftermath } from "aftermath-ts-sdk";
 gsap.registerPlugin(ScrollTrigger);
 
 /* ═══════════════════════════════════════════════════════
@@ -19,7 +20,10 @@ gsap.registerPlugin(ScrollTrigger);
 const TOTAL_SUPPLY = 1_000_000_000;
 const FALLBACK_BURNED = 183_120_000;
 const LP_PCT = 13.75;
-const STAKED_PCT = 5.42;
+const STAKED_PCT = 5.4;
+const FALLBACK_COIN_DECIMALS = 9;
+const AFTERMATH_POOL_ID =
+  "0xf09c59df4f57add24e73037a2a920e7d5c8bf6e0ae819f53e397c504cf230d25";
 
 type SegmentMeta = {
   key: "lp" | "burned" | "circulating" | "staked";
@@ -72,14 +76,14 @@ type Segment = SegmentMeta & { pct: number };
 type SegmentGeo = Segment & { startAngle: number; segLen: number };
 
 /** Build the four live segments from the current burn % */
-function buildSegments(burnPct: number): Segment[] {
+function buildSegments(burnPct: number, stakedPct: number): Segment[] {
   // Clamp so rounding noise can't produce a negative circulating slice
-  const circulatingPct = Math.max(0, 100 - burnPct - LP_PCT - STAKED_PCT);
+  const circulatingPct = Math.max(0, 100 - burnPct - LP_PCT - stakedPct);
   const pcts: Record<SegmentMeta["key"], number> = {
     lp: LP_PCT,
     burned: burnPct,
     circulating: circulatingPct,
-    staked: STAKED_PCT,
+    staked: stakedPct,
   };
   return SEGMENT_META.map((m) => ({ ...m, pct: pcts[m.key] }));
 }
@@ -94,6 +98,49 @@ function buildSegGeo(segments: Segment[]): SegmentGeo[] {
       segLen: (seg.pct / 100) * CIRC - GAP,
     };
   });
+}
+
+function formatUnits(value: bigint, decimals: number) {
+  const zero = BigInt(0);
+  const negative = value < zero;
+  const abs = negative ? zero - value : value;
+  const base = BigInt(10) ** BigInt(decimals);
+  const whole = abs / base;
+  const fraction = abs % base;
+
+  if (decimals === 0) {
+    return `${negative ? "-" : ""}${whole.toString()}`;
+  }
+
+  const fractionStr = fraction
+    .toString()
+    .padStart(decimals, "0")
+    .replace(/0+$/, "");
+
+  return `${negative ? "-" : ""}${whole.toString()}${fractionStr ? `.${fractionStr}` : ""}`;
+}
+
+function formatCompactAmount(value: bigint, decimals: number) {
+  const numeric = Number(formatUnits(value, decimals));
+  if (!Number.isFinite(numeric)) return formatUnits(value, decimals);
+
+  return new Intl.NumberFormat("en", {
+    notation: "compact",
+    compactDisplay: "short",
+    maximumFractionDigits: 2,
+  }).format(numeric);
+}
+
+function ratioToPercent(numerator: bigint, denominator: bigint, precision = 2) {
+  if (denominator === BigInt(0)) return 0;
+
+  const scale = BigInt(10) ** BigInt(precision);
+  const scaled = (numerator * BigInt(100) * scale) / denominator;
+  const whole = scaled / scale;
+  const fraction = scaled % scale;
+  return Number(
+    `${whole.toString()}.${fraction.toString().padStart(precision, "0")}`,
+  );
 }
 
 /* ── Magnetic tilt helpers (reused for stat + trust cards) ── */
@@ -177,6 +224,47 @@ export default function Tokenomics() {
   const pulseOuterRef = useRef<SVGCircleElement>(null);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const [burned, setBurned] = useState<number>(FALLBACK_BURNED);
+  const [coinDecimals, setCoinDecimals] = useState<number>(
+    FALLBACK_COIN_DECIMALS,
+  );
+  const [stakedPct, setStakedPct] = useState<number>(STAKED_PCT);
+  const [stakedAmountLabel, setStakedAmountLabel] = useState<string>("—");
+
+  const handleStakedAmount = useCallback(async () => {
+    try {
+      const af = new Aftermath("MAINNET");
+      await af.init();
+
+      const farms = af.Farms();
+      const allFarms = await farms.getAllStakingPools();
+      const myFarm = allFarms.find(
+        (farm) => farm.stakingPool.objectId === AFTERMATH_POOL_ID,
+      );
+
+      const stakedAmount = myFarm?.stakingPool.stakedAmount;
+      if (stakedAmount === undefined) {
+        setStakedAmountLabel("Unavailable");
+        setStakedPct(STAKED_PCT);
+        return;
+      }
+
+      const supplyInSmallestUnits =
+        BigInt(TOTAL_SUPPLY) * BigInt(10) ** BigInt(coinDecimals);
+      const stakedPctOfSupply = ratioToPercent(
+        stakedAmount,
+        supplyInSmallestUnits,
+        2,
+      );
+
+      setStakedAmountLabel(
+        `${formatCompactAmount(stakedAmount, coinDecimals)} MBP`,
+      );
+      setStakedPct(stakedPctOfSupply);
+    } catch (error) {
+      setStakedAmountLabel("Unavailable");
+      setStakedPct(STAKED_PCT);
+    }
+  }, [coinDecimals]);
 
   /* ── Fetch live burn data (shared source with BurnComponent) ── */
   useEffect(() => {
@@ -192,9 +280,26 @@ export default function Tokenomics() {
     return () => controller.abort();
   }, []);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchCoinData(controller.signal).then((result) => {
+      if (result.ok && typeof result.data.decimals === "number") {
+        setCoinDecimals(result.data.decimals);
+      }
+    });
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    void handleStakedAmount();
+  }, [handleStakedAmount]);
+
   /* ── Derived live distribution ── */
   const burnPct = (burned / TOTAL_SUPPLY) * 100;
-  const segments = useMemo(() => buildSegments(burnPct), [burnPct]);
+  const segments = useMemo(
+    () => buildSegments(burnPct, stakedPct),
+    [burnPct, stakedPct],
+  );
   const segGeo = useMemo(() => buildSegGeo(segments), [segments]);
   const maxPct = useMemo(
     () => Math.max(...segments.map((s) => s.pct)),
@@ -205,9 +310,9 @@ export default function Tokenomics() {
   // multiply by (TOTAL_SUPPLY / 100) to get their token counts.
   const circulatingTokens = useMemo(() => {
     const lpTokens = (LP_PCT / 100) * TOTAL_SUPPLY;
-    const stakedTokens = (STAKED_PCT / 100) * TOTAL_SUPPLY;
+    const stakedTokens = (stakedPct / 100) * TOTAL_SUPPLY;
     return Math.max(0, TOTAL_SUPPLY - burned - lpTokens - stakedTokens);
-  }, [burned]);
+  }, [burned, stakedPct]);
 
   const keyStats: {
     label: string;
@@ -721,6 +826,18 @@ export default function Tokenomics() {
                 </div>
               </div>
             ))}
+
+            <div className="tok-stat group p-4 lg:p-5 rounded-lg bg-scarlet/[0.06] border border-scarlet/15 hover:border-scarlet/25 hover:bg-scarlet/[0.08] transition-[background-color,border-color] duration-300">
+              <div className="font-display text-[9px] tracking-[0.25em] uppercase text-scarlet/70 mb-2 group-hover:text-scarlet transition-colors duration-300">
+                Staked MBP
+              </div>
+              <div className="font-beast text-lg lg:text-2xl text-bone leading-none mb-1 tabular-nums">
+                {stakedAmountLabel}
+              </div>
+              <div className="font-display text-[9px] tracking-wider text-ash/25 hidden lg:block">
+                {stakedPct.toFixed(2)}% of supply
+              </div>
+            </div>
           </div>
 
           {/* Center — Ring chart */}

@@ -28,6 +28,8 @@ const COINMUN_URL = "https://coinmun.com/coins/manbearpig-1";
 const AFTERMATH_URL =
   "https://aftermath.finance/farms/0xf09c59df4f57add24e73037a2a920e7d5c8bf6e0ae819f53e397c504cf230d25";
 const DEXTOOLS_URL = "https://www.dextools.io/app/token/mbp";
+const GECKOTERMINAL_URL =
+  "https://www.geckoterminal.com/sui-network/pools/0x57b26c490617f07694687c224c2333b9906a027930e19a5acebdc4d486c215e4";
 
 /* ═══════════════════════════════════════════════════════
    Hooks
@@ -1391,6 +1393,34 @@ export default function Ecosystem() {
                   <circle cx="10" cy="11" r="1" />
                   <circle cx="14" cy="14" r="1" />
                   <circle cx="18" cy="7" r="1" />
+                </svg>
+              }
+            />
+
+            <ListingCard
+              href={GECKOTERMINAL_URL}
+              label="Pool Tracker"
+              title="GECKOTERMINAL"
+              description="Track the $MBP Sui pool, liquidity, and trading activity on GeckoTerminal."
+              badge="Live"
+              ctaLabel="Open Pool"
+              accent="#58c472"
+              icon={
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 15c0-4.4 3.6-8 8-8h4" />
+                  <path d="M19 7v6h-6" />
+                  <path d="M7 19h10" />
+                  <circle cx="9" cy="19" r="1" fill="currentColor" stroke="none" />
+                  <circle cx="15" cy="19" r="1" fill="currentColor" stroke="none" />
                 </svg>
               }
             />
